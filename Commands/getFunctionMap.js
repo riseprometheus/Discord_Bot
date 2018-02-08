@@ -5,6 +5,8 @@ exports.run = (command) => {
                 "sweep":"Misc",
                 //Moderation Commands
                 "getroles": "Moderation",
-                "nickname": "Moderation"};
+                "nickname": "Moderation",
+                //Music
+               "summon": "Music"};
     return dict[command];
  }
