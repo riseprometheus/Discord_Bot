@@ -7,6 +7,7 @@ exports.run = (command) => {
                 "getroles": "Moderation",
                 "nickname": "Moderation",
                 //Music
-               "summon": "Music"};
+               "summon": "Music",
+               "leave": "Music"};
     return dict[command];
  }
