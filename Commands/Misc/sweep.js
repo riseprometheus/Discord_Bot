@@ -1,5 +1,5 @@
 exports.run = (client, message,args) => {
-     if(message.member.hasPermission('MANAGE_MESSAGES'))
+     if(!message.member.hasPermission('MANAGE_MESSAGES'))
      {
        message.channel.send("You don't have high enough permissions to do that.").catch(console.error);
        return;
