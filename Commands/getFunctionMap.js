@@ -4,6 +4,7 @@ exports.run = (command) => {
                 "guilddetails":"Misc",
                 "sweep":"Misc",
                 "killme":"Misc",
+                "help":"Misc",
                 //Moderation Commands
                 "getroles": "Moderation",
                 "nickname": "Moderation",

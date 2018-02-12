@@ -1,0 +1,16 @@
+[{
+  "command":"getRoles",
+  "help":"A command that will display the user's current roles on this server.",
+  "active":true
+},
+{
+  "command":"time",
+  "help":"A command that will display the current time relative to the bot.",
+  "active":true
+},
+{
+  "command":"guildDetails",
+  "help":"A command that will display population information for your server.",
+  "active":true
+}
+]

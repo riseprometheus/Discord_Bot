@@ -4,6 +4,7 @@ const client = new Discord.Client();
 var logger = require('winston');
 var auth = require('./auth.json');
 var config = require('./config.json')
+var masterCommandList = require('./Commands/masterCommandList.json')
 // Configure logger settings
 logger.remove(logger.transports.Console);
 logger.add(logger.transports.Console, {
@@ -30,6 +31,20 @@ client.on('message', message => {
   try {
       let functionFolder = require('./Commands/getFunctionMap.js');
       var folder = functionFolder.run(command);
+
+      if(command == "help"){
+        var helpString = '';
+        var spacer = " "
+        for(i in masterCommandList){
+          if(masterCommandList[i].active == true)
+          {
+            helpString += "`"+config.prefix + masterCommandList[i].command +"`" + ": " +
+            masterCommandList[i].help +"\n\n";
+          }
+        }
+        message.channel.send(helpString);
+        return;
+      }
 
       let commandFile = require(`./commands/${folder}/${command}.js`);
       commandFile.run(client, message, args);
