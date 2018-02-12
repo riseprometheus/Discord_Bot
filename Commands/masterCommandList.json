@@ -12,5 +12,10 @@
   "command":"guildDetails",
   "help":"A command that will display population information for your server.",
   "active":true
+},
+{
+  "command":"ping",
+  "help":"A command that will respond to the user accordingly.",
+  "active":true
 }
 ]

@@ -32,19 +32,9 @@ client.on('message', message => {
       let functionFolder = require('./Commands/getFunctionMap.js');
       var folder = functionFolder.run(command);
 
-      if(command == "help"){
-        var helpString = '';
-        var spacer = " "
-        for(i in masterCommandList){
-          if(masterCommandList[i].active == true)
-          {
-            helpString += "`"+config.prefix + masterCommandList[i].command +"`" + ": " +
-            masterCommandList[i].help +"\n\n";
-          }
-        }
-        message.channel.send(helpString);
+      if(checkIfHelp(command,message)){
         return;
-      }
+      };
 
       let commandFile = require(`./commands/${folder}/${command}.js`);
       commandFile.run(client, message, args);
@@ -62,3 +52,20 @@ client.on('guildMemberAdd', member => {
 });
 
 client.login(auth.token);
+
+function checkIfHelp(command,message){
+  if(command == "help"){
+    var helpString = '';
+    var spacer = " "
+    for(i in masterCommandList){
+      if(masterCommandList[i].active == true)
+      {
+        helpString += "`"+config.prefix + masterCommandList[i].command +"`" + ": " +
+        masterCommandList[i].help +"\n\n";
+      }
+    }
+    message.channel.send(helpString);
+    return true;
+  }
+  return false;
+}
