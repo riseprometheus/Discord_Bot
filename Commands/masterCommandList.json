@@ -1,21 +1,44 @@
-[{
+[
+  {
   "command":"getRoles",
   "help":"A command that will display the user's current roles on this server.",
-  "active":true
+  "active":true,
+  "subfolder":"Moderation"
+},
+{
+  "command":"sweep",
+  "help":"Deletes the last messages sent in a two week period. Requires Manage_Messages permission",
+  "active":true,
+  "subfolder":"Misc"
 },
 {
   "command":"time",
   "help":"A command that will display the current time relative to the bot.",
-  "active":true
+  "active":true,
+  "subfolder":"Misc"
 },
 {
   "command":"guildDetails",
   "help":"A command that will display population information for your server.",
-  "active":true
+  "active":true,
+  "subfolder":"Misc"
 },
 {
   "command":"ping",
   "help":"A command that will respond to the user accordingly.",
-  "active":true
+  "active":true,
+  "subfolder":"Misc"
+},
+{
+  "command":"hankWhite",
+  "help":"Plays a soundbite from King of the Hill.",
+  "active":true,
+  "subfolder":"Hank"
+},
+{
+  "command":"hankHello",
+  "help":"A friendly greeting from Hank Hill.",
+  "active":true,
+  "subfolder":"Hank"
 }
 ]

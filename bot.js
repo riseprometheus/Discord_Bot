@@ -35,7 +35,6 @@ client.on('message', message => {
       if(checkIfHelp(command,message)){
         return;
       };
-
       let commandFile = require(`./commands/${folder}/${command}.js`);
       commandFile.run(client, message, args);
     } catch (err) {
@@ -56,7 +55,7 @@ client.login(auth.token);
 function checkIfHelp(command,message){
   if(command == "help"){
     var helpString = '';
-    var spacer = " "
+    var spacer = ' ';
     for(i in masterCommandList){
       if(masterCommandList[i].active == true)
       {
