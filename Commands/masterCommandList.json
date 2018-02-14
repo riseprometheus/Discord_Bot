@@ -3,54 +3,70 @@
   "command":"getRoles",
   "help":"A command that will display the user's current roles on this server.",
   "active":true,
-  "subfolder":"Moderation"
+  "subfolder":"Moderation",
+  "hidden":false
 },
 {
 "command":"nickname",
 "help":"Set your nickname. Requires permission to change nickname.",
 "active":false,
-"subfolder":"Moderation"
+"subfolder":"Moderation",
+"hidden":false
 },
 {
   "command":"sweep",
   "help":"Deletes the last messages sent in a two week period. Requires Manage_Messages permission",
   "active":true,
-  "subfolder":"Misc"
+  "subfolder":"Misc",
+  "hidden":false
+},
+{
+  "command":"killMe",
+  "help":"Modern humor is weird.",
+  "active":true,
+  "subfolder":"Misc",
+  "hidden":true
 },
 {
   "command":"time",
   "help":"A command that will display the current time relative to the bot.",
   "active":true,
-  "subfolder":"Misc"
+  "subfolder":"Misc",
+  "hidden":false
 },
 {
   "command":"guildDetails",
   "help":"A command that will display population information for your server.",
   "active":true,
-  "subfolder":"Misc"
+  "subfolder":"Misc",
+  "hidden":false
 },
 {
   "command":"ping",
   "help":"A command that will respond to the user accordingly.",
   "active":true,
-  "subfolder":"Misc"
+  "subfolder":"Misc",
+  "hidden":false
 },
 {
   "command":"hankWhite",
   "help":"Plays a soundbite from King of the Hill.",
   "active":true,
-  "subfolder":"Hank"
+  "subfolder":"Hank",
+  "hidden":false
 },
 {
   "command":"hankHello",
   "help":"A friendly greeting from Hank Hill.",
   "active":true,
-  "subfolder":"Hank"
+  "subfolder":"Hank",
+  "hidden":false
 },
 {
   "command":"nani",
   "help":"Nani???",
   "active":true,
-  "subfolder":"Anime"
+  "subfolder":"Anime",
+  "hidden":false
 }
 ]

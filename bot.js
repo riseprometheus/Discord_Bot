@@ -61,7 +61,7 @@ function checkIfHelp(command,message){
     var spacer = ' ';
     for(i in masterCommandList){
 
-      if(masterCommandList[i].active == false)
+      if(masterCommandList[i].active == false ||  masterCommandList[i].hidden == true)
       {continue;}
 
       helpString += "`"+config.prefix + masterCommandList[i].command +"`" + ": " +
