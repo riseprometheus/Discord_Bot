@@ -29,12 +29,15 @@ client.on('message', message => {
   const args = message.content.slice(config.prefix.length).trim().split(/ +/g);
   const command = args.shift().toLowerCase();
   try {
-      let functionFolder = require('./Commands/getFunctionMap.js');
-      var folder = functionFolder.run(command);
+      // let functionFolder = require('./Commands/getFunctionMap.js');
+      // var folder = functionFolder.run(command);
+
 
       if(checkIfHelp(command,message)){
         return;
       };
+      var folder = checkIfActive(command,message);
+      console.log(folder);
       let commandFile = require(`./commands/${folder}/${command}.js`);
       commandFile.run(client, message, args);
     } catch (err) {
@@ -53,18 +56,36 @@ client.on('guildMemberAdd', member => {
 client.login(auth.token);
 
 function checkIfHelp(command,message){
-  if(command == "help"){
+  if(command == "helpbot"){
     var helpString = '';
     var spacer = ' ';
     for(i in masterCommandList){
-      if(masterCommandList[i].active == true)
-      {
-        helpString += "`"+config.prefix + masterCommandList[i].command +"`" + ": " +
-        masterCommandList[i].help +"\n\n";
-      }
+
+      if(masterCommandList[i].active == false)
+      {continue;}
+
+      helpString += "`"+config.prefix + masterCommandList[i].command +"`" + ": " +
+      masterCommandList[i].help +"\n\n";
+
     }
     message.channel.send(helpString);
     return true;
   }
   return false;
+}
+
+function checkIfActive(command,message)
+{
+  for(i in masterCommandList){
+    if(masterCommandList[i].command == command)
+    {
+      if(masterCommandList[i].active == false)
+      {
+        message.channel.send("Command is disabled by Admin.");
+        return '';
+      }
+      return masterCommandList[i].subfolder;
+    }
+  }
+  logger.info(message.content + " is not a valid command")
 }

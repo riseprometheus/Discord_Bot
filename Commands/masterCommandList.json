@@ -1,9 +1,15 @@
 [
-  {
+{
   "command":"getRoles",
   "help":"A command that will display the user's current roles on this server.",
   "active":true,
   "subfolder":"Moderation"
+},
+{
+"command":"nickname",
+"help":"Set your nickname. Requires permission to change nickname.",
+"active":false,
+"subfolder":"Moderation"
 },
 {
   "command":"sweep",
@@ -40,5 +46,11 @@
   "help":"A friendly greeting from Hank Hill.",
   "active":true,
   "subfolder":"Hank"
+},
+{
+  "command":"nani",
+  "help":"Nani???",
+  "active":true,
+  "subfolder":"Anime"
 }
 ]

@@ -13,6 +13,8 @@ exports.run = (command) => {
                "leave": "Music",
                //hank
                "hankhello":"Hank",
-               "hankwhite":"Hank"};
+               "hankwhite":"Hank",
+               //Anime sounds
+               "nani":"Anime"};
     return dict[command];
  }
