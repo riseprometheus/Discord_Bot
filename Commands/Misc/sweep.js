@@ -14,7 +14,7 @@ exports.run = (client, message,args) => {
        numberToDelete = args[0];
      }
      message.channel.send("Attempting to delete last " + numberToDelete+" messages.").catch(console.error);
-     message.channel.bulkDelete(numberToDelete).catch(function(error) {
+     message.channel.bulkDelete(numberToDelete+1).catch(function(error) {
        console.log(error.stack);
        message.channel.send("Something went wrong when deleting messages. Check permissions and try again.");
        return;
