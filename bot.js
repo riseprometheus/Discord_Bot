@@ -77,7 +77,7 @@ function checkIfHelp(command,message){
 function checkIfActive(command,message)
 {
   for(i in masterCommandList){
-    if(masterCommandList[i].command == command)
+    if(masterCommandList[i].command.toLowerCase() == command)
     {
       if(masterCommandList[i].active == false)
       {

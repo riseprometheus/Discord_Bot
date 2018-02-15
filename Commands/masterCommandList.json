@@ -68,5 +68,12 @@
   "active":true,
   "subfolder":"Anime",
   "hidden":false
+},
+{
+  "command":"RockPaperScissors",
+  "help":"A fun game of Rock Paper Scissors. Parameters are <choice>.",
+  "active":true,
+  "subfolder":"Games",
+  "hidden":false
 }
 ]
