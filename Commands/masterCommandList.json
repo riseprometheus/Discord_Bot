@@ -71,7 +71,7 @@
 },
 {
   "command":"hankWhite",
-  "help":"Plays a soundbite from King of the Hill.",
+  "help":"Hank explains himself.",
   "active":true,
   "subfolder":"Hank",
   "hidden":false
