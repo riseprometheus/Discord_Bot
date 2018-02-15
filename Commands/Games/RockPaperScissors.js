@@ -8,17 +8,11 @@ exports.run = (client, message,args) => {
     return;
   }
   var winningScenarios = [["rock","scissors"],["scissors","paper"],["paper","rock"]];
-
   var didYouWin = winningScenarios.find(function(element){
     var pair = [userChoice,botChoice];
-
-    console.log(element[0] == pair[0] && element[1] == pair[1]);
     if(element[0] == pair[0] && element[1] == pair[1]){
-      console.log("success")
       return true;
     }
-  });
-  console.log(didYouWin);
   if(didYouWin != undefined)
   {message.channel.send(
     "You chose: " + userChoice + " and the bot chose: " + botChoice +". Congrats, you win!").catch(console.error); }

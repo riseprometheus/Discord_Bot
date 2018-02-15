@@ -4,7 +4,7 @@ exports.run = (client, message,args) => {
        message.channel.send("You don't have high enough permissions to do that.").catch(console.error);
        return;
      }
-     var numberToDelete = 20;
+     var numberToDelete = 0;
      if(args.length != 0){
        if(args[0]<2)
        {
@@ -13,6 +13,10 @@ exports.run = (client, message,args) => {
        }
        numberToDelete = args[0];
      }
+     else{
+       numberToDelete = 20;
+     }
+     console.log(numberToDelete);
      message.channel.send("Attempting to delete last " + numberToDelete+" messages.").catch(console.error);
 
      message.channel.bulkDelete(numberToDelete+1).catch(function(error) {

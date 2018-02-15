@@ -49,15 +49,29 @@
   "hidden":false
 },
 {
-  "command":"hankWhite",
-  "help":"Plays a soundbite from King of the Hill.",
+  "command":"hankHello",
+  "help":"A friendly greeting from Hank Hill.",
   "active":true,
   "subfolder":"Hank",
   "hidden":false
 },
 {
-  "command":"hankHello",
-  "help":"A friendly greeting from Hank Hill.",
+  "command":"hankLove",
+  "help":"Hank Hill's asks you about love.",
+  "active":true,
+  "subfolder":"Hank",
+  "hidden":false
+},
+{
+  "command":"hankSorry",
+  "help":"An apology from Hank Hill.",
+  "active":true,
+  "subfolder":"Hank",
+  "hidden":false
+},
+{
+  "command":"hankWhite",
+  "help":"Plays a soundbite from King of the Hill.",
   "active":true,
   "subfolder":"Hank",
   "hidden":false
