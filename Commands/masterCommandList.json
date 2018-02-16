@@ -21,6 +21,13 @@
   "hidden":false
 },
 {
+  "command":"random",
+  "help":"Generates a random number between 1 and user definied upper bound. Default is 100.",
+  "active":true,
+  "subfolder":"Misc",
+  "hidden":false
+},
+{
   "command":"killMe",
   "help":"Modern humor is weird.",
   "active":true,
