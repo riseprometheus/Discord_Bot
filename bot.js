@@ -39,6 +39,7 @@ client.on('message', message => {
       var folder = checkIfActive(command,message);
       console.log(folder);
       let commandFile = require(`./commands/${folder}/${command}.js`);
+      logger.info('Loaded Command: ' + command + " in the " + folder + " folder.");
       commandFile.run(client, message, args);
     } catch (err) {
       logger.info(message.content + " is not a valid command" + '\r\n' + err)
