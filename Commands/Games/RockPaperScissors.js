@@ -4,10 +4,11 @@ exports.run = (client, message,args) => {
   var botChoice = possibleBotChoices[Math.floor((Math.random() * 3))];
   if(userChoice == botChoice)
   {
-    message.channel.send("You and the bot chose the same option! Try again!").catch(console.error);
+    message.channel.send({embed : {color: 3447003,
+      description: "You and the bot chose the same option! Try again!"}}).catch(console.error);
     return;
   }
-  console.log("success")
+
   var winningScenarios = [["rock","scissors"],["scissors","paper"],["paper","rock"]];
   var didYouWin = winningScenarios.find(function(element){
     var pair = [userChoice,botChoice];
@@ -16,8 +17,8 @@ exports.run = (client, message,args) => {
     }
   });
   if(didYouWin != undefined)
-  {message.channel.send(
-    "You chose: " + userChoice + " and the bot chose: " + botChoice +". Congrats, you win!").catch(console.error); }
-  else{message.channel.send(
-    "You chose: " + userChoice + " and the bot chose: " + botChoice +". Try again next time!").catch(console.error); }
+  {message.channel.send({embed : {color: 0x4dd52b,
+    description: "You chose: " + userChoice + " and the bot chose: " + botChoice +". Congrats, you win!"}}).catch(console.error); }
+  else{message.channel.send({embed : {color: 0xff0000,
+    description: "You chose: " + userChoice + " and the bot chose: " + botChoice +". Try again next time!"}}).catch(console.error); }
 }
