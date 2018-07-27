@@ -1,4 +1,8 @@
 exports.run = (client, message,args) => {
+  if(message.member.voiceChannelID == null || message.member == null )
+  {
+    message.reply('You must be in a voice channel to use this command.')
+  }
     var voiceChannel = message.member.voiceChannel;
         voiceChannel.join().then(connection => {
             console.log("joined channel");
@@ -7,5 +11,5 @@ exports.run = (client, message,args) => {
                 console.log("left channel");
                 voiceChannel.leave();
             });
-        }).catch(err => console.log(err));
+        }).catch(message.reply('You must be in a voice channel to use this command.'));
  }
