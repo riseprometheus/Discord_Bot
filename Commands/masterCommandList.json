@@ -14,6 +14,13 @@
 "hidden":false
 },
 {
+"command":"request",
+"help":"Send a request to the moderators. ?request <your request>",
+"active":true,
+"subfolder":"Moderation",
+"hidden":false
+},
+{
   "command":"sweep",
   "help":"Deletes the last messages sent in a two week period. Requires Manage_Messages permission",
   "active":true,
