@@ -63,6 +63,13 @@
   "hidden":false
 },
 {
+  "command":"paulStatus",
+  "help":"Find out what paul is doing.",
+  "active":true,
+  "subfolder":"Misc",
+  "hidden":true
+},
+{
   "command":"hankHello",
   "help":"A friendly greeting from Hank Hill.",
   "active":true,
