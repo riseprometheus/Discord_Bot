@@ -7,6 +7,8 @@ var config = require('./config.json')
 var masterCommandList = require('./Commands/masterCommandList.json')
 var signedIn = false;
 var activites = [`on ${client.guilds.size} servers`,'ask ?help','Ping Prometheus when I die']
+var currentlyAttemptingLogin = false;
+var loggedIn = false;
 
 var emojiMap =
 [
@@ -25,7 +27,8 @@ logger.add(logger.transports.Console, {
 logger.level = 'debug';
 
 client.on('ready', () => {
-  logger.info('Hello there!');
+
+  logger.info('Hello there!\n');
   logger.info(`Connected to ${client.guilds.size} server(s)`);
   client.user.setGame(`Bot is starting up`);
   var counter = 0;
@@ -97,6 +100,43 @@ client.on('guildMemberAdd', member => {
   if (!channel) return;
   channel.send(`Welcome to the server, ${member}`);
 });
+
+client.on('disconnect', function(){
+  logger.info("Bot has disconnected. Attempting to restart.")
+  loggedIn = false;
+  attemptLogin(client)
+})
+
+client.on('error',function(err){
+  if(err.message == "read ECONNRESET" && !currentlyAttemptingLogin)
+  {
+    loggedIn = false;
+    attemptLogin(client);
+    return;
+  }
+
+  if(err.message == "read ECONNRESET" && currentlyAttemptingLogin)
+  {
+    loggedIn = false;
+    logger.info("Still Attempting to login.")
+    return;
+  }
+
+  if(currentlyAttemptingLogin)
+  {
+    return;
+  }
+  logger.info("Bot has crashed. Not attempting restart.")
+
+  process.exit()
+})
+
+client.on('resume',function(err){
+  currentlyAttemptingLogin = false;
+  loggedIn = true;
+  logger.info("Successfully logged back in. Resuming duties.");
+})
+
 
 client.login(auth.token);
 
@@ -230,4 +270,47 @@ function editMenuPerCategory(commandCategory,message)
 
     }
     return
+}
+
+async function attemptLogin(client)
+{
+  logger.info("Starting login Attempts")
+  var loginAttempts = 0;
+  var maxLoginAttempts = 10;
+
+  currentlyAttemptingLogin = true;
+  for(loginAttempts = 1; loginAttempts <=maxLoginAttempts; loginAttempts++)
+
+      try
+      {
+        logger.info(`Attempting login #${loginAttempts}`)
+        await sleep(30000)
+
+        if(loggedIn)
+        {
+          return;
+        }
+        continue;
+      }
+      catch(err)
+      {
+        if(loginAttempts==maxLoginAttempts)
+        {
+          currentlyAttemptingLogin = false;
+        }
+
+        logger.info(`Login attempt ${loginAttempts} has failed. Trying again.`)
+        await sleep(10000)
+      }
+
+  if(!loggedIn)
+  {
+    logger.info("Successive login attempts unsuccessful. Exiting bot.")
+    process.exit()
+  }
+  return;
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
