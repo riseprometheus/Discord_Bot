@@ -137,6 +137,14 @@ client.on('resume',function(err){
   logger.info("Successfully logged back in. Resuming duties.");
 })
 
+client.on('guildMemberUpdate',function(oldMember,newMember){
+  if(!oldMember.roles.find("name", "T-800") && newMember.roles.find("name", "T-800")){
+    var newMemberName = newMember.user.toString();
+    client.channels.get(
+      auth.homeTextChannel).send(`@everyone welcome ${newMemberName} to the clan!`);
+
+    }
+})
 
 client.login(auth.token);
 
