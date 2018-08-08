@@ -1,5 +1,6 @@
 {
   "prefix": "?",
   "modRole":"Admin",
-  "botRole":"BOT MAN"
+  "botRole":"BOT MAN",
+  "debug":true
 }

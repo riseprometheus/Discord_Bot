@@ -6,7 +6,7 @@ var auth = require('./auth.json');
 var config = require('./config.json')
 
 const skynetModule = require('./Skynet/skynet.js')
-const skynet = new skynetModule.skynetBase(auth);
+const skynet = new skynetModule.skynetBase(auth,config);
 
 var masterCommandList = require('./Commands/masterCommandList.json')
 var signedIn = false;
@@ -23,6 +23,14 @@ var emojiMap =
   {key: 4,value:'Anime'},
   {key: 5,value:'Back'}
 ];
+
+var reactionRoleID =
+{
+    "🔰":"377919983650471937", // TODO: Put these in config
+    "🔹":"351126070889807872"// TODO: put these in config
+};
+
+
 // Configure logger settings
 logger.remove(logger.transports.Console);
 logger.add(logger.transports.Console, {
@@ -61,6 +69,10 @@ client.on('message', message => {
   if(botHelpResponse(message)){
     return;
   };
+  if(reactToMessage(message,["🔰","🔹"]))
+  {
+    return;
+  }
   if(message.author.bot) return;
 
   if(message.guild == null && message.content.indexOf(config.prefix) !== 0)
@@ -103,15 +115,18 @@ client.on('guildMemberAdd', member => {
   // const channel = member.guild.channels.find('name', 'member-log');
   // if (!channel) return;
   // channel.send(`Welcome to the server, ${member}`);
-  logger.info(member.guild.id)
   var skynetData = skynet.newMemberAdded(member.guild.id)
   if(skynetData.getIsSuccess())
   {
-    console.log(skynetData.getMessageString())
+    var setUpData = skynet.beginSetup(member.id)
     member.user.send(skynetData.getMessageString())
-  }
-  else {
-    logger.info("A user joined a non clan server")
+
+    if(setUpData.getIsSuccess())
+    {
+      member.user.send(
+        {embed : {color: 0x4dd52b,
+            description:setUpData.getMessageString() }})
+    }
   }
 });
 
@@ -152,7 +167,6 @@ client.on('resume',function(err){
 })
 
 client.on('guildMemberUpdate',function(oldMember,newMember){
-  skynet.newRoleAdded();
   if(!oldMember.roles.find("name", "T-800") && newMember.roles.find("name", "T-800")){
     var newMemberName = newMember.user.toString();
     client.channels.get(
@@ -334,6 +348,41 @@ async function attemptLogin(client)
   }
   return;
 }
+
+async function reactToMessage(message,reactions)
+{
+
+  if(message.author.id !=client.user.id ) return;
+  if(message.embeds.length == 0) return;
+
+  if(message.embeds[0])
+
+    if(message.embeds[0].description.indexOf("If you would like")>=0)
+    {
+      for (const emoji of reactions)
+      {
+        await message.react(emoji);
+      }
+    }
+
+}
+
+
+  client.on('messageReactionAdd', (reaction, user) => {
+      if(user.id ==client.user.id) return;
+      if(reaction.emoji.name in reactionRoleID && reaction.message.embeds.length != 0
+        && reaction.message.embeds[0].description.indexOf("If you would like")>=0)
+      {
+          if (reaction.emoji.name in reactionRoleID)
+          {
+
+             var user = client.guilds.get(auth.home).members.get(user.id)
+             user.addRoles(reactionRoleID[reaction.emoji.name]).then(user.removeRole(auth.defaultRole))
+
+          }
+      }
+  });
+
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
