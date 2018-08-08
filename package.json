@@ -1,7 +1,7 @@
 {
-  "name": "Data_scraper",
+  "name": "Discord_Bot",
   "version": "1.0.0",
-  "description": "Discord Server Text Aggregator",
+  "description": "Discord Bot with moderation tools",
   "main": "bot.js",
   "author": "Christopher Bilbo",
   "dependencies": {
@@ -10,6 +10,7 @@
     "ffmpeg-binaries": "^3.2.2-3",
     "opus": "0.0.0",
     "opusscript": "0.0.6",
-    "winston": "^2.4.0"
+    "winston": "^2.4.0",
+    "skynet": "1.0.0"
   }
 }

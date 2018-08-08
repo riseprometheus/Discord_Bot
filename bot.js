@@ -4,6 +4,10 @@ const client = new Discord.Client();
 var logger = require('winston');
 var auth = require('./auth.json');
 var config = require('./config.json')
+
+const skynetModule = require('./Skynet/skynet.js')
+const skynet = new skynetModule.skynetBase(auth);
+
 var masterCommandList = require('./Commands/masterCommandList.json')
 var signedIn = false;
 var activites = [`on ${client.guilds.size} servers`,'ask ?help','Ping Prometheus when I die']
@@ -96,9 +100,19 @@ client.on('message', message => {
 
 
 client.on('guildMemberAdd', member => {
-  const channel = member.guild.channels.find('name', 'member-log');
-  if (!channel) return;
-  channel.send(`Welcome to the server, ${member}`);
+  // const channel = member.guild.channels.find('name', 'member-log');
+  // if (!channel) return;
+  // channel.send(`Welcome to the server, ${member}`);
+  logger.info(member.guild.id)
+  var skynetData = skynet.newMemberAdded(member.guild.id)
+  if(skynetData.getIsSuccess())
+  {
+    console.log(skynetData.getMessageString())
+    member.user.send(skynetData.getMessageString())
+  }
+  else {
+    logger.info("A user joined a non clan server")
+  }
 });
 
 client.on('disconnect', function(){
@@ -138,10 +152,12 @@ client.on('resume',function(err){
 })
 
 client.on('guildMemberUpdate',function(oldMember,newMember){
+  skynet.newRoleAdded();
   if(!oldMember.roles.find("name", "T-800") && newMember.roles.find("name", "T-800")){
     var newMemberName = newMember.user.toString();
     client.channels.get(
-      auth.homeTextChannel).send(`@everyone welcome ${newMemberName} to the clan!`);
+      auth.
+      TextChannel).send(`@everyone welcome ${newMemberName} to the clan!`);
 
     }
 })
