@@ -27,7 +27,10 @@ var emojiMap =
 var reactionRoleID =
 {
     "🔰":"377919983650471937", // TODO: Put these in config
-    "🔹":"351126070889807872"// TODO: put these in config
+    "🔹":"351126070889807872",// TODO: put these in config
+    "377207705594757123":"373629204769669121", //titan
+    "377203229873930251":"350883091725811742",//hunter
+    "377203230653939713":"350884452995694594"//warlock
 };
 
 
@@ -112,14 +115,16 @@ client.on('message', message => {
 
 
 client.on('guildMemberAdd', member => {
-  // const channel = member.guild.channels.find('name', 'member-log');
-  // if (!channel) return;
-  // channel.send(`Welcome to the server, ${member}`);
   var skynetData = skynet.newMemberAdded(member.guild.id)
   if(skynetData.getIsSuccess())
   {
+    member.addRole(auth.defaultRole) //// TODO: move to config_
+    sleep(1500)
     var setUpData = skynet.beginSetup(member.id)
-    member.user.send(skynetData.getMessageString())
+    if(!skynet.checkIfDebug(member.id))
+    {
+      member.user.send(skynetData.getMessageString())
+    }
 
     if(setUpData.getIsSuccess())
     {
@@ -171,7 +176,7 @@ client.on('guildMemberUpdate',function(oldMember,newMember){
     var newMemberName = newMember.user.toString();
     client.channels.get(
       auth.
-      TextChannel).send(`@everyone welcome ${newMemberName} to the clan!`);
+      homeTextChannel).send(`@everyone welcome ${newMemberName} to the clan!`);
 
     }
 })
@@ -357,7 +362,7 @@ async function reactToMessage(message,reactions)
 
   if(message.embeds[0])
 
-    if(message.embeds[0].description.indexOf("If you would like")>=0)
+    if(message.embeds[0].description.indexOf("Welcome to Skynet!")>=0)
     {
       for (const emoji of reactions)
       {
@@ -368,22 +373,37 @@ async function reactToMessage(message,reactions)
 }
 
 
-  client.on('messageReactionAdd', (reaction, user) => {
-      if(user.id ==client.user.id) return;
-      if(reaction.emoji.name in reactionRoleID && reaction.message.embeds.length != 0
-        && reaction.message.embeds[0].description.indexOf("If you would like")>=0)
-      {
-          if (reaction.emoji.name in reactionRoleID)
-          {
+client.on('messageReactionAdd', (reaction, user) => {
+    if(user.id == client.user.id) return;
+    if(reaction.message.author.id !=client.user.id) return;
+    if(reaction.emoji.name in reactionRoleID && reaction.message.embeds.length != 0
+      && reaction.message.embeds[0].description.indexOf("Welcome to Skynet!")>=0)
+    {
+        if (reaction.emoji.name in reactionRoleID)
+        {
+           logger.info("Going to set up roles for " + user.username)
+           setupBaseRoles(user.id,reaction.emoji.name);
 
-             var user = client.guilds.get(auth.home).members.get(user.id)
-             user.addRoles(reactionRoleID[reaction.emoji.name]).then(user.removeRole(auth.defaultRole))
-
-          }
-      }
-  });
+        }
+    }
+});
 
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function setupBaseRoles(userID, reactionName)
+{
+  var skynetUser = client.guilds.get(auth.home).members.get(userID);
+  var dm = await skynetUser.createDM()
+  dm.startTyping();
+  var finalMessage = skynet.setupFinalString(reactionRoleID[reactionName])
+  await skynetUser.addRoles(reactionRoleID[reactionName])
+  await skynetUser.removeRole(auth.defaultRole)
+  await sleep(2000)
+  dm.stopTyping()
+  await skynetUser.user.send(
+    {embed : {color: 0x4dd52b,
+        description:finalMessage.getMessageString() }})
 }

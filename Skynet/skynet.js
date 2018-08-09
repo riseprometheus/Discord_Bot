@@ -1,4 +1,5 @@
 const defaultMessages = require("./skynetMessages.json")
+const importantRoles = require("./serverConfig.json")
 
 class skynetBase {
   constructor(auth_,config_)
@@ -17,14 +18,13 @@ class skynetBase {
   {
       if(this.homeGuildID == guildID_)
       {
-        return new skynetFunctionData(true,defaultMessages.welcome);
+        return new skynetFunctionData(true,defaultMessages.general);
       }
       return new skynetFunctionData(false,"Failure");
   }
 
   checkIfDebug(userID_)
   {
-      console.log('Debug Status: '+this.debugStatus)
       if(this.debugStatus)
       {
         // console.log('This User: '+userID_)
@@ -44,12 +44,21 @@ class skynetBase {
       if(this.checkIfDebug(userID_))
       {
         var reactions = ["🔰","🔹"]
-        return new skynetFunctionData(true,defaultMessages.prospect + "\n" + defaultMessages.friendOf,reactions )
+        return new skynetFunctionData(true,defaultMessages.welcome+ "\n" + defaultMessages.prospect + "\n" + defaultMessages.friendOf,reactions )
       }
       //console.log("Non Debug user triggered this event.")
       return new skynetFunctionData(false);
   }
 
+  setupFinalString(reactionID)
+  {
+    
+    if(reactionID == importantRoles.onTheProcessor)
+    {
+      return new skynetFunctionData(true,defaultMessages.final + "\n" + defaultMessages.bungieNET);
+    }
+    return new skynetFunctionData(true,defaultMessages.final);
+  }
 }
 
 class skynetFunctionData
