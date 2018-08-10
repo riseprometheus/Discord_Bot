@@ -14,6 +14,13 @@
 "hidden":false
 },
 {
+"command":"pruneRoleWithTime",
+"help":"Check if user has a role determined by config and they have been on server for a period of time.",
+"active":true,
+"subfolder":"Moderation",
+"hidden":false
+},
+{
 "command":"request",
 "help":"Send a request to the moderators. ?request <your request>",
 "active":true,

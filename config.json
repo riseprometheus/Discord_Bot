@@ -2,5 +2,5 @@
   "prefix": "?",
   "modRole":"Admin",
   "botRole":"BOT MAN",
-  "debug":true
+  "debug":false
 }

@@ -4,5 +4,6 @@
   "friendOf": "If you would like our friend of the server role, which gives you access to our lfg channel, please select 🔹",
   "prospect": "If you would like to join our Destiny 2 clan, please select 🔰",
   "final":"All set. If you would like any of our secondary roles head over to #lay-of-the-land.",
-  "bungieNET":"Also, don't forget to submit a request at https://www.bungie.net/en/ClanV2?groupid=2071065 if you haven't already!"
+  "bungieNET":"Also, don't forget to submit a request at https://www.bungie.net/en/ClanV2?groupid=2071065 if you haven't already!",
+  "roleKick":"You have been kicked from the server for being on the server for longer than a day without setting your roles. You may rejoin using https://discord.gg/rxTUAUb. If the bot does not message you, please message one of the moderators to have roles manually added."
 }

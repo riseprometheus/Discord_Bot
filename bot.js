@@ -48,7 +48,7 @@ client.on('ready', () => {
   client.user.setGame(`Bot is starting up`);
   var counter = 0;
 
-  var interval = setInterval(function()
+  var interval1 = setInterval(function()
   {
     if(counter == 0)
     {
@@ -65,14 +65,23 @@ client.on('ready', () => {
     }
   },15*1000)
 
+  var interal2 = setInterval(function(){ // Set interval for checking
+      var date = new Date(); // Create a Date object to find out what time it is
+      if(date.getHours() === 8 && date.getMinutes() === 0)
+      { // Check the time
+          logger.info("Beginning specified role purge.")
+          userRolePurge()
+      }
+  }, 60000); //
+
 
 });
 
 client.on('message', message => {
-  if(botHelpResponse(message)){
+  if(botHelpResponse(message) == true){//why doesn't if(botHelpResponse(message)) not work?
     return;
   };
-  if(reactToMessage(message,["🔰","🔹"]))
+  if(reactToMessage(message,["🔰","🔹"]) == true)
   {
     return;
   }
@@ -196,7 +205,7 @@ function checkIfHelp(command,message)
 
 function botHelpResponse(message)
 {
-    if(message.author.id !=client.user.id ) return;
+    if(message.author.id !=client.user.id ) return false;
 
     message.embeds.forEach((embed)=>{
 
@@ -357,8 +366,15 @@ async function attemptLogin(client)
 async function reactToMessage(message,reactions)
 {
 
-  if(message.author.id !=client.user.id ) return;
-  if(message.embeds.length == 0) return;
+  if(message.author.id !=client.user.id )
+  {
+    return false;
+  }
+
+  if(message.embeds.length == 0)
+  {
+    return false;
+  }
 
   if(message.embeds[0])
 
@@ -368,7 +384,9 @@ async function reactToMessage(message,reactions)
       {
         await message.react(emoji);
       }
+      return true;
     }
+    return false;
 
 }
 
@@ -406,4 +424,40 @@ async function setupBaseRoles(userID, reactionName)
   await skynetUser.user.send(
     {embed : {color: 0x4dd52b,
         description:finalMessage.getMessageString() }})
+}
+
+function userRolePurge()
+{
+  var userKickedString = ""
+
+  const skynetModule = require('../../Skynet/skynet.js')
+  const skynet = new skynetModule.skynetBase(auth,config);
+  var clanMembers = client.guilds.get(auth.home).members
+
+  clanMembers.forEach(function(guildMember,guildMemberID)
+  {
+      if(guildMember.roles.has(auth.defaultRole))
+      {
+        if((Date.now()-guildMember.joinedTimestamp) > 86400000) //1 day = 86400000
+        {
+          try{
+          guildMember.user.send(skynet.getNewRoleKickString()).
+          then(userKickedString +=(" "+guildMember.nickname) ).
+          then(guildMember.kick())
+          }
+          catch(error)
+          {
+            client.guilds.get(auth.home).channels.get(auth.homeTextChannel).send(`@${guildMember.nickname} Please set up your roles before you are kicked by an @T-1000`)
+          }
+        }
+      }
+  })
+  console.log(userKickedString.length)
+  if(userKickedString.length == 0)
+  {
+    userKickedString = "0 members"
+  }
+  console.log(userKickedString)
+  client.guilds.get(auth.home).channels.get(auth.modChannel).send(userKickedString+ " were removed for not setting up their roles.")
+
 }

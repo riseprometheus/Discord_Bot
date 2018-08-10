@@ -52,15 +52,19 @@ class skynetBase {
 
   setupFinalString(reactionID)
   {
-    
+
     if(reactionID == importantRoles.onTheProcessor)
     {
       return new skynetFunctionData(true,defaultMessages.final + "\n" + defaultMessages.bungieNET);
     }
     return new skynetFunctionData(true,defaultMessages.final);
   }
-}
 
+   getNewRoleKickString()
+   {
+     return defaultMessages.roleKick
+   }
+}
 class skynetFunctionData
 {
   constructor(success_,messageString_ ="",reactionArry_ = {})
