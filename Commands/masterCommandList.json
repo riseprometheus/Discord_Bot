@@ -77,6 +77,13 @@
   "hidden":true
 },
 {
+  "command":"customCommand",
+  "help":"Add a custom command for the bot.",
+  "active":true,
+  "subfolder":"Misc",
+  "hidden":false
+},
+{
   "command":"hankHello",
   "help":"A friendly greeting from Hank Hill.",
   "active":true,

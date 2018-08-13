@@ -5,11 +5,47 @@ const client = new Discord.Client();
 var winston = require('winston');
 var auth = require('./auth.json');
 var config = require('./config.json')
+const fs = require('fs')
+
+const logger = winston.createLogger({
+  levels: winston.config.syslog.levels,
+  transports: [
+    new winston.transports.Console({ level: 'debug',
+    format: winston.format.combine(
+            winston.format.colorize(),
+            winston.format.simple()) }),
+    new winston.transports.File({
+      filename: 'combined.log',
+      level: 'info'
+    })
+  ]
+});
 
 const skynetModule = require('./Skynet/skynet.js')
 const skynet = new skynetModule.skynetBase(auth,config);
 
-var masterCommandList = require('./Commands/masterCommandList.json')
+try
+{
+  var masterCommandList = require('./Commands/masterCommandList.json')
+}
+catch(err)
+{
+  logger.info("Did not load master command list. Shutting down.")
+  process.exit()
+}
+
+
+try
+{
+  var customCommandList = require('./Commands/Misc/customCommandsSave.json')
+}
+catch(err)
+{
+  logger.info("Did not load custom commands file. Custom Commands will be disabled until this file is created.")
+  logger.debug(err)
+}
+
+
 var activites = [`on ${client.guilds.size} servers`,'ask ?help','Ping Prometheus when I die']
 var currentlyAttemptingLogin = false;
 var loggedIn = false;
@@ -34,19 +70,6 @@ var reactionRoleID =
     "377203230653939713":"350884452995694594"//warlock
 };
 
-const logger = winston.createLogger({
-  levels: winston.config.syslog.levels,
-  transports: [
-    new winston.transports.Console({ level: 'debug',
-    format: winston.format.combine(
-            winston.format.colorize(),
-            winston.format.simple()) }),
-    new winston.transports.File({
-      filename: 'combined.log',
-      level: 'info'
-    })
-  ]
-});
 
 client.on('ready', () => {
   logger.debug('Hello there!');
@@ -103,26 +126,39 @@ client.on('message', message => {
   }
 
   if(message.content.indexOf(config.prefix) !== 0) return;
-  if(message.content.indexOf('/') != -1){
-    message.reply("Please don't try to mess around with me too much.");
-    return;
-  }
+
   //check if dm
   const args = message.content.slice(config.prefix.length).trim().split(/ +/g);
   const command = args.shift().toLowerCase();
   try {
       // let functionFolder = require('./Commands/getFunctionMap.js');
       // var folder = functionFolder.run(command);
+      if(message.content.indexOf('/') != -1 && command != "customcommand"){
+        message.reply("Please don't try to mess around with me too much.");
+        return;
+      }
+
       if(checkIfHelp(command,message)){
         return;
       };
 
+      if(checkIfCustomCommand(command,message) == true)
+      {
+        return;
+      }
+
       var folder = checkIfActive(command,message);
-      //console.log(folder);
+
+
+      //logger.debug("Loaded folder: " + folder)
       let commandFile = require(`./commands/${folder}/${command}.js`);
+
+
       commandFile.run(client, message, args);
-    } catch (err) {
-      if(message.content == config.prefix + "help")return;
+    }
+    catch (err) {
+      if(message.content == config.prefix + "help") return;
+      logger.debug('Error thrown when loading file: ' + err)
     }
 
 });
@@ -465,5 +501,33 @@ function userRolePurge()
     verb = " was "
   }
   client.guilds.get(auth.home).channels.get(auth.modChannel).send(userKickedString + verb +"removed for not setting up their roles.")
+
+}
+
+function checkIfCustomCommand(command_,message_)
+{
+    try
+    {
+      fs.readFile('./Commands/Misc/customCommandsSave.json', (err, data) => {
+      if (err) throw err;
+      let jsonArray = JSON.parse(data);
+
+      jsonArray.forEach(commandEntry =>{
+
+        if(command_ == commandEntry.command.toLowerCase())
+        {
+            message_.channel.send(commandEntry.response)
+            return true;
+        }
+        });
+
+      })
+
+    }
+    catch(err)
+    {
+      logger.debug("Problem loading custom command, error: " + err)
+      return false;
+    }
 
 }

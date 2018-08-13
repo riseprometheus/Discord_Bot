@@ -1,0 +1,14 @@
+[
+  {
+    "command": "test",
+    "response": "This is a test command."
+  },
+  {
+    "command": "break",
+    "response": "test/"
+  },
+  {
+    "command": "sexyCalus",
+    "response": "https://www.reddit.com/r/DestinyTheGame/comments/8yx6th/fan_art_sexy_empress_calus"
+  }
+]
