@@ -1,5 +1,6 @@
 exports.run = (client, message,args) => {
     var auth = require('./../../auth.json');
+    var config = require('./../../config.json');
     if(message.member.roles.has(auth.modRole))
     {
       const fs = require('fs');
@@ -29,6 +30,10 @@ exports.run = (client, message,args) => {
             jsonArray.push(newCommand)
             var data = JSON.stringify(jsonArray,null,2);
             fs.writeFileSync('./Commands/Misc/customCommandsSave.json',data)
+            message.channel.send(
+              {embed : {color: 0x4dd52b,
+                  description:"New command: **" + config.prefix + newCommand.command + "** has been added to the list of custom commands."}})
+
         }
         catch(err)
         {
