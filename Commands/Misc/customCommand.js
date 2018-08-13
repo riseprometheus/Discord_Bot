@@ -1,7 +1,7 @@
 exports.run = (client, message,args) => {
     var auth = require('./../../auth.json');
     var config = require('./../../config.json');
-    if(message.member.roles.has(auth.modRole))
+    if(message.member.hasPermission('MANAGE_ROLES'))
     {
       const fs = require('fs');
 
