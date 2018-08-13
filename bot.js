@@ -1,7 +1,8 @@
 const Discord = require('discord.js');
 const client = new Discord.Client();
 
-var logger = require('winston');
+
+var winston = require('winston');
 var auth = require('./auth.json');
 var config = require('./config.json')
 
@@ -9,10 +10,10 @@ const skynetModule = require('./Skynet/skynet.js')
 const skynet = new skynetModule.skynetBase(auth,config);
 
 var masterCommandList = require('./Commands/masterCommandList.json')
-var signedIn = false;
 var activites = [`on ${client.guilds.size} servers`,'ask ?help','Ping Prometheus when I die']
 var currentlyAttemptingLogin = false;
 var loggedIn = false;
+var date = new Date();
 
 var emojiMap =
 [
@@ -33,18 +34,24 @@ var reactionRoleID =
     "377203230653939713":"350884452995694594"//warlock
 };
 
-
-// Configure logger settings
-logger.remove(logger.transports.Console);
-logger.add(logger.transports.Console, {
-    colorize: true
+const logger = winston.createLogger({
+  levels: winston.config.syslog.levels,
+  transports: [
+    new winston.transports.Console({ level: 'debug',
+    format: winston.format.combine(
+            winston.format.colorize(),
+            winston.format.simple()) }),
+    new winston.transports.File({
+      filename: 'combined.log',
+      level: 'info'
+    })
+  ]
 });
-logger.level = 'debug';
 
 client.on('ready', () => {
-
-  logger.info('Hello there!\n');
-  logger.info(`Connected to ${client.guilds.size} server(s)`);
+  logger.debug('Hello there!');
+  logger.debug(`Connected to ${client.guilds.size} server(s)`);
+  logger.info("Starting up at: " + date.getHours() + ":" + date.getMinutes())
   client.user.setGame(`Bot is starting up`);
   var counter = 0;
 
@@ -66,10 +73,10 @@ client.on('ready', () => {
   },15*1000)
 
   var interal2 = setInterval(function(){ // Set interval for checking
-      var date = new Date(); // Create a Date object to find out what time it is
-      if(date.getHours() === 8 && date.getMinutes() === 0)
+       // Create a Date object to find out what time it is
+      if(date.getHours() === 8 && date.getMinutes() === 00)
       { // Check the time
-          logger.info("Beginning specified role purge.")
+          logger.debug("Beginning specified role purge.")
           userRolePurge()
       }
   }, 60000); //
@@ -113,11 +120,9 @@ client.on('message', message => {
       var folder = checkIfActive(command,message);
       //console.log(folder);
       let commandFile = require(`./commands/${folder}/${command}.js`);
-      //logger.info('Loaded Command: ' + command + " in the " + folder + " folder.");
       commandFile.run(client, message, args);
     } catch (err) {
       if(message.content == config.prefix + "help")return;
-      logger.info(message.content + " is not a valid command" + '\r\n' + err)
     }
 
 });
@@ -145,7 +150,7 @@ client.on('guildMemberAdd', member => {
 });
 
 client.on('disconnect', function(){
-  logger.info("Bot has disconnected. Attempting to restart.")
+  logger.debug("Bot has disconnected. Attempting to restart.")
   loggedIn = false;
   attemptLogin(client)
 })
@@ -161,7 +166,7 @@ client.on('error',function(err){
   if(err.message == "read ECONNRESET" && currentlyAttemptingLogin)
   {
     loggedIn = false;
-    logger.info("Still Attempting to login.")
+    logger.debug("Still Attempting to login.")
     return;
   }
 
@@ -169,7 +174,7 @@ client.on('error',function(err){
   {
     return;
   }
-  logger.info("Bot has crashed. Not attempting restart.")
+  logger.debug("Bot has crashed. Not attempting restart. @" +date.getHours() + ":" + date.getMinutes())
 
   process.exit()
 })
@@ -177,7 +182,7 @@ client.on('error',function(err){
 client.on('resume',function(err){
   currentlyAttemptingLogin = false;
   loggedIn = true;
-  logger.info("Successfully logged back in. Resuming duties.");
+  logger.debug("Successfully logged back in. Resuming duties.");
 })
 
 client.on('guildMemberUpdate',function(oldMember,newMember){
@@ -266,7 +271,6 @@ function checkIfActive(command,message)
     }
   }
   if(message.content == config.prefix + "help")return;
-  logger.info(message.content + " is not a valid command")
 }
 
 function respondToDM(message)
@@ -326,7 +330,7 @@ function editMenuPerCategory(commandCategory,message)
 
 async function attemptLogin(client)
 {
-  logger.info("Starting login Attempts")
+  logger.debug("Starting login Attempts")
   var loginAttempts = 0;
   var maxLoginAttempts = 10;
 
@@ -335,7 +339,7 @@ async function attemptLogin(client)
 
       try
       {
-        logger.info(`Attempting login #${loginAttempts}`)
+        logger.debug(`Attempting login #${loginAttempts}`)
         await sleep(30000)
 
         if(loggedIn)
@@ -351,13 +355,13 @@ async function attemptLogin(client)
           currentlyAttemptingLogin = false;
         }
 
-        logger.info(`Login attempt ${loginAttempts} has failed. Trying again.`)
+        logger.debug(`Login attempt ${loginAttempts} has failed. Trying again.`)
         await sleep(10000)
       }
 
   if(!loggedIn)
   {
-    logger.info("Successive login attempts unsuccessful. Exiting bot.")
+    logger.info("Successive login attempts unsuccessful. Exiting bot @" + date.getHours() + ":" + date.getMinutes())
     process.exit()
   }
   return;
@@ -429,9 +433,8 @@ async function setupBaseRoles(userID, reactionName)
 function userRolePurge()
 {
   var userKickedString = ""
-
-  const skynetModule = require('../../Skynet/skynet.js')
-  const skynet = new skynetModule.skynetBase(auth,config);
+  var numOfUsers = 0
+  var verb = " were "
   var clanMembers = client.guilds.get(auth.home).members
 
   clanMembers.forEach(function(guildMember,guildMemberID)
@@ -442,8 +445,9 @@ function userRolePurge()
         {
           try{
           guildMember.user.send(skynet.getNewRoleKickString()).
-          then(userKickedString +=(" "+guildMember.nickname) ).
+          then(userKickedString +=(" "+guildMember.user.username) ).
           then(guildMember.kick())
+          numOfUsers++
           }
           catch(error)
           {
@@ -452,12 +456,14 @@ function userRolePurge()
         }
       }
   })
-  console.log(userKickedString.length)
   if(userKickedString.length == 0)
   {
     userKickedString = "0 members"
   }
-  console.log(userKickedString)
-  client.guilds.get(auth.home).channels.get(auth.modChannel).send(userKickedString+ " were removed for not setting up their roles.")
+  if(numOfUsers ==1)
+  {
+    verb = " was "
+  }
+  client.guilds.get(auth.home).channels.get(auth.modChannel).send(userKickedString + verb +"removed for not setting up their roles.")
 
 }

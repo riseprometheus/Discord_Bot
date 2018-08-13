@@ -16,9 +16,10 @@ exports.run = (client, message, args) =>
         {
           if((Date.now()-guildMember.joinedTimestamp) > 86400000) //1 day = 86400000
           {
+            console.log(guildMember.user.username)
             try{
             guildMember.user.send(skynet.getNewRoleKickString()).
-            then(userKickedString +=(" "+guildMember.nickname) ).
+            then(userKickedString +=(" "+guildMember.user.username) ).
             then(guildMember.kick())
             }
             catch(error)
@@ -34,7 +35,7 @@ exports.run = (client, message, args) =>
       userKickedString = "0 members"
     }
     console.log(userKickedString)
-    client.guilds.get(auth.home).channels.get(auth.modChannel).send(userKickedString+ " were removed for not setting up their roles.")
+    // client.guilds.get(auth.home).channels.get(auth.modChannel).send(userKickedString+ " were removed for not setting up their roles.")
   }
   else
   {

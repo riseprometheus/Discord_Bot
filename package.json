@@ -10,7 +10,6 @@
     "ffmpeg-binaries": "^3.2.2-3",
     "opus": "0.0.0",
     "opusscript": "0.0.6",
-    "winston": "^2.4.0",
-    "skynet": "1.0.0"
+    "winston": "^3.0.0"
   }
 }
