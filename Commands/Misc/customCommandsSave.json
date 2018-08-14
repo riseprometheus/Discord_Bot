@@ -1,9 +1,5 @@
 [
   {
-    "command": "test",
-    "response": "This is a test command."
-  },
-  {
     "command": "sexyCalus",
     "response": "https://www.reddit.com/r/DestinyTheGame/comments/8yx6th/fan_art_sexy_empress_calus"
   },
@@ -12,7 +8,19 @@
     "response": "https://www.youtube.com/watch?v=uWd6XgBVIcg"
   },
   {
-    "command": "blank",
-    "response": "hentai"
+    "command": "destinyAnime",
+    "response": "https://www.youtube.com/watch?v=mvePLy9mbVg&feature=youtu.be"
+  },
+  {
+    "command": "colby",
+    "response": "<@134865550768734208>"
+  },
+  {
+    "command": "bullyColby",
+    "response": "<@134865550768734208> hey"
+  },
+  {
+    "command": "old",
+    "response": "<@!198269064064270356> is really old"
   }
 ]

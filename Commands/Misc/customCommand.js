@@ -15,6 +15,21 @@ exports.run = (client, message,args) => {
           {
           console.log("need to create empty json file")
           }
+          if(args.length == 0)
+          {
+            //list current custom Commands
+            var customCommandListString = ""
+            jsonArray.forEach((customCommand)=>{
+              customCommandListString += ("**" + config.prefix + customCommand.command + "**" +"\n")
+
+            })
+            message.channel.send(
+              {embed : {color: 0x4dd52b,
+                  description:"Current list of custom commands:\n " + customCommandListString}})
+
+            return;
+          }
+
           var commandInput = args[0]
           var responseInput = args.slice(1).join(" ")
           console.log("Command: " + commandInput)
