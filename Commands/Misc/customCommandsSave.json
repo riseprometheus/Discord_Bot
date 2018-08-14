@@ -14,13 +14,5 @@
   {
     "command": "colby",
     "response": "<@134865550768734208>"
-  },
-  {
-    "command": "bullyColby",
-    "response": "<@134865550768734208> hey"
-  },
-  {
-    "command": "old",
-    "response": "<@!198269064064270356> is really old"
   }
 ]

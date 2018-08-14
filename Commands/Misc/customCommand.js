@@ -29,6 +29,23 @@ exports.run = (client, message,args) => {
 
             return;
           }
+          if(args[0].toLowerCase() =="remove")
+          {
+            for(var index = 0; index < jsonArray.length; index++ )
+            {
+              if(jsonArray[index].command.toLowerCase() == args[1].toLowerCase())
+              {
+                jsonArray.splice(index,1);
+                break;
+              }
+            }
+            var data = JSON.stringify(jsonArray,null,2);
+            fs.writeFileSync('./Commands/Misc/customCommandsSave.json',data)
+            message.channel.send(
+              {embed : {color: 0x4dd52b,
+                  description: "Custom command: **" + args[1] + "** was removed."}})
+             return;
+          }
 
           var commandInput = args[0]
           var responseInput = args.slice(1).join(" ")
