@@ -124,5 +124,12 @@
   "active":true,
   "subfolder":"Games",
   "hidden":false
+},
+{
+  "command":"hoursPlayed",
+  "help":"Number of hours (including idle) played in Destiny 2.",
+  "active":true,
+  "subfolder":"Destiny",
+  "hidden":true
 }
 ]
