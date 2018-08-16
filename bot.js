@@ -77,6 +77,7 @@ client.on('ready', () => {
   logger.info("Starting up at: " + date.getHours() + ":" + date.getMinutes())
   client.user.setGame(`Bot is starting up`);
   var counter = 0;
+  resetRoleChannel();
 
   var interval1 = setInterval(function()
   {
@@ -95,7 +96,7 @@ client.on('ready', () => {
     }
   },15*1000)
 
-  var interal2 = setInterval(function(){ // Set interval for checking
+  var interval2 = setInterval(function(){ // Set interval for checking
        // Create a Date object to find out what time it is
       if(date.getHours() === 8 && date.getMinutes() === 00)
       { // Check the time
@@ -103,6 +104,10 @@ client.on('ready', () => {
           userRolePurge()
       }
   }, 60000); //
+
+  var interval3 = setInterval(function(){ // Set interval for checking
+    resetRoleChannel();
+  }, 3600000); //
 
 
 });
@@ -579,4 +584,23 @@ function checkIfCustomCommand(command_,message_)
       return false;
     }
 
+}
+
+async function resetRoleChannel()
+{
+  if(client.guilds.get(auth.home).channels.get(
+  auth.roleChannel).lastMessageID != null)
+  {
+    var lastMessage = await client.guilds.get(auth.home).channels.get(
+      auth.roleChannel).fetchMessage(client.guilds.get(auth.home).channels.get(
+        auth.roleChannel).lastMessageID);
+
+        lastMessage.delete();
+  }
+
+    client.guilds.get(auth.home).channels.get(auth.roleChannel).send(
+      {embed : {color: 0x4dd52b,
+          description:"React with ⚠ if you would like the spoiler role for this server." }})
+
+    return;
 }
