@@ -115,6 +115,11 @@ client.on('message', message => {
   {
     return;
   }
+  if(reactToMessage(message,["⚠"]) == true)
+  {
+    return;
+  }
+
   if(message.author.bot) return;
 
   if(message.guild == null && message.content.indexOf(config.prefix) !== 0)
@@ -158,7 +163,7 @@ client.on('message', message => {
     }
     catch (err) {
       if(message.content == config.prefix + "help") return;
-      logger.debug('Error thrown when loading file: ' + err)
+    //  logger.debug('Error thrown when loading file: ' + err)
     }
 
 });
@@ -249,6 +254,11 @@ function botHelpResponse(message)
     if(message.author.id !=client.user.id ) return false;
 
     message.embeds.forEach((embed)=>{
+
+      if(embed.url != null)
+      {
+        return;
+      }
 
       if(embed.description.indexOf("HELP MENU")>=0)
       {
@@ -416,24 +426,47 @@ async function reactToMessage(message,reactions)
     return false;
   }
 
-  if(message.embeds[0])
+  if(message.embeds[0].url != null)
+  {
+    return false;
+  }
 
+  if(message.embeds[0])
+  {
     if(message.embeds[0].description.indexOf("Welcome to Skynet!")>=0)
     {
-      for (const emoji of reactions)
+      if(reactions[0] ==="🔰")
       {
-        await message.react(emoji);
+        for (const emoji of reactions)
+        {
+          await message.react(emoji);
+        }
+        return true;
       }
-      return true;
     }
-    return false;
 
+    if(message.embeds[0].description.indexOf("React with ⚠")>=0)
+    {
+
+      if(reactions[0] ==="⚠")
+      {
+        for (const emoji of reactions)
+        {
+          await message.react(emoji);
+        }
+        return true;
+      }
+    }
+  }
+
+  return false;
 }
 
 
 client.on('messageReactionAdd', (reaction, user) => {
     if(user.id == client.user.id) return;
     if(reaction.message.author.id !=client.user.id) return;
+
     if(reaction.emoji.name in reactionRoleID && reaction.message.embeds.length != 0
       && reaction.message.embeds[0].description.indexOf("Welcome to Skynet!")>=0)
     {
@@ -441,8 +474,24 @@ client.on('messageReactionAdd', (reaction, user) => {
         {
            logger.info("Going to set up roles for " + user.username)
            setupBaseRoles(user.id,reaction.emoji.name);
-
+           return;
         }
+    }
+
+    var spoilerData = skynet.getSpoilerRole(reaction.message.guild.id, reaction.emoji.name)
+    if(spoilerData.getIsSuccess())
+    {
+      var skynetUser = client.guilds.get(auth.home).members.get(user.id);
+
+      if(skynetUser.roles.has(spoilerData.getMessageString()))
+      {
+        return;
+      }
+      skynetUser.addRoles(spoilerData.getMessageString())
+
+      skynetUser.user.send(
+        {embed : {color: 0x4dd52b,
+            description:"Spoiler role added." }})
     }
 });
 

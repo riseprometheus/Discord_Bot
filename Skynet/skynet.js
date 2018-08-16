@@ -14,6 +14,11 @@ class skynetBase {
     console.log("New Role added to a user")
   }
 
+  isSkynet(guildID_)
+  {
+     return guildID_ == this.homeGuildID;
+  }
+
   newMemberAdded(guildID_)
   {
       if(this.homeGuildID == guildID_)
@@ -64,6 +69,16 @@ class skynetBase {
    {
      return defaultMessages.roleKick
    }
+
+   getSpoilerRole(guildID_,reaction_)
+   {
+     if(this.isSkynet(guildID_) && reaction_ == "⚠")
+     {
+       return new skynetFunctionData(true,importantRoles.spoilerRole)
+     }
+     return new skynetFunctionData(false,"")
+   }
+
 }
 class skynetFunctionData
 {

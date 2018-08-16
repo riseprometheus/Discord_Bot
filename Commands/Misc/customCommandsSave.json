@@ -12,7 +12,19 @@
     "response": "https://www.youtube.com/watch?v=mvePLy9mbVg&feature=youtu.be"
   },
   {
-    "command": "colby",
-    "response": "<@134865550768734208>"
+    "command": "bullyColby",
+    "response": "Fuck <@134865550768734208>"
+  },
+  {
+    "command": "wow",
+    "response": "https://cdn.discordapp.com/attachments/350915122904170498/479509667031285770/images_mIKu3nR.png"
+  },
+  {
+    "command": "sniperSmurf",
+    "response": "https://www.youtube.com/watch?v=q3ikTozRDhI"
+  },
+  {
+    "command": "hype",
+    "response": "https://lh5.googleusercontent.com/-NTzMCoOXElY/VdSit5FnIQI/AAAAAAADR7g/7Fqm9rAnI3I/w800-h800/forreals.gif"
   }
 ]

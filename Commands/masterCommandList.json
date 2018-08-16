@@ -28,6 +28,13 @@
 "hidden":false
 },
 {
+"command":"postSpoilerSignUp",
+"help":"Send a post to start a spoiler role sign up.",
+"active":true,
+"subfolder":"Moderation",
+"hidden":true
+},
+{
   "command":"sweep",
   "help":"Deletes the last messages sent in a two week period. Requires Manage_Messages permission",
   "active":true,
