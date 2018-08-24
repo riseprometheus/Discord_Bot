@@ -138,5 +138,12 @@
   "active":true,
   "subfolder":"Destiny",
   "hidden":true
+},
+{
+  "command":"hoursPlayedAdv",
+  "help":"Number of hours played in Destiny 2.",
+  "active":true,
+  "subfolder":"Destiny",
+  "hidden":true
 }
 ]

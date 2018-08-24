@@ -97,8 +97,8 @@ client.on('ready', () => {
   },15*1000)
 
   var interval2 = setInterval(function(){ // Set interval for checking
-       // Create a Date object to find out what time it is
-      if(date.getHours() === 8 && date.getMinutes() === 00)
+
+      if(date.getHours() === 18 && date.getMinutes() === 15)
       { // Check the time
           logger.debug("Beginning specified role purge.")
           userRolePurge()
@@ -168,7 +168,7 @@ client.on('message', message => {
     }
     catch (err) {
       if(message.content == config.prefix + "help") return;
-    //  logger.debug('Error thrown when loading file: ' + err)
+     logger.debug('Error thrown when loading file: ' + err)
     }
 
 });
@@ -259,50 +259,62 @@ function botHelpResponse(message)
     if(message.author.id !=client.user.id ) return false;
 
     message.embeds.forEach((embed)=>{
-
       if(embed.url != null)
       {
         return;
       }
 
-      if(embed.description.indexOf("HELP MENU")>=0)
+      if(embed.description == null)
       {
-        var filterEmojiArray = ['💼','🎮','❓','🤠','🗡','⬅'];
-
-        message.react(filterEmojiArray[0])
-        .then(()=>message.react(filterEmojiArray[1]))
-        .then(()=>message.react(filterEmojiArray[2]))
-        .then(()=>message.react(filterEmojiArray[3]))
-        .then(()=>message.react(filterEmojiArray[4]))
-
-
-      const filter = (reaction,user)=> {
-        return filterEmojiArray.includes(reaction.emoji.name) && user.id !=client.user.id;
+        return;
       }
 
+      try
+      {
+        if(embed.description.indexOf("HELP MENU")>=0)
+        {
+          var filterEmojiArray = ['💼','🎮','❓','🤠','🗡','⬅'];
 
-      const collector = message.createReactionCollector(filter, { time: 60000 });
-
-      collector.on('collect', (reaction, reactionCollector) => {
-          var categoryString = emojiMap[filterEmojiArray.indexOf(reaction.emoji.name)].value
-          if(categoryString == 'Back')
-          {
-            editMainMenu(message)
-          }
-          else
-          {
-            editMenuPerCategory(categoryString,message)
-          }
-
-      });
-
-      collector.on('end', collected => {
-        message.reply('Signing off. If you need anything else, please send your command again.')
-      });
+          message.react(filterEmojiArray[0])
+          .then(()=>message.react(filterEmojiArray[1]))
+          .then(()=>message.react(filterEmojiArray[2]))
+          .then(()=>message.react(filterEmojiArray[3]))
+          .then(()=>message.react(filterEmojiArray[4]))
 
 
-          return true
+        const filter = (reaction,user)=> {
+          return filterEmojiArray.includes(reaction.emoji.name) && user.id !=client.user.id;
         }
+
+
+        const collector = message.createReactionCollector(filter, { time: 60000 });
+
+        collector.on('collect', (reaction, reactionCollector) => {
+            var categoryString = emojiMap[filterEmojiArray.indexOf(reaction.emoji.name)].value
+            if(categoryString == 'Back')
+            {
+              editMainMenu(message)
+            }
+            else
+            {
+              editMenuPerCategory(categoryString,message)
+            }
+
+        });
+
+        collector.on('end', collected => {
+          message.reply('Signing off. If you need anything else, please send your command again.')
+        });
+
+
+            return true
+          }
+      }
+      catch(err)
+      {
+        //console.log("Was not a bot function")
+        return;
+      }
       })
 
       return false;
@@ -434,6 +446,11 @@ async function reactToMessage(message,reactions)
   if(message.embeds[0].url != null)
   {
     return false;
+  }
+
+  if(message.embeds[0].description == null)
+  {
+    return;
   }
 
   if(message.embeds[0])
