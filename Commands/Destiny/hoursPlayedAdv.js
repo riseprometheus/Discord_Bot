@@ -49,6 +49,7 @@ exports.run = async (client, message,args) => {
                     return;
                   }
                   var minutesPlayed = 0;
+                  var hoursPlayed = 0;
 
                   var totalPvpMinutes = 0;
                   var totalPatrolMinutes = 0;
@@ -62,29 +63,44 @@ exports.run = async (client, message,args) => {
                 			  function (err, response, body) {
                           //console.log(`Minutes for ${count} ` + JSON.parse(body).Response.character.data.minutesPlayedTotal)
                           //.log(Number(JSON.parse(body).Response.character.data.minutesPlayedTotal))
-                          var pvpMinutes = Number(JSON.parse(body).Response.allPvP.allTime.secondsPlayed.basic.value)/60;
-                          //console.log("pvpMinutes:" + pvpMinutes +"\n")
-                          totalPvpMinutes += pvpMinutes;
+                          if(!(Object.keys(JSON.parse(body).Response.allPvP).length === 0 && JSON.parse(body).Response.allPvP.constructor === Object))
+                          {
+                            var pvpMinutes = Number(JSON.parse(body).Response.allPvP.allTime.secondsPlayed.basic.value)/60;
+                            //console.log("pvpMinutes:" + pvpMinutes +"\n")
+                            totalPvpMinutes += pvpMinutes;
+                          }
 
-                          var patrolMinutes = Number(JSON.parse(body).Response.patrol.allTime.secondsPlayed.basic.value)/60;
-                          //console.log("patrolMinutes:" + patrolMinutes+"\n")
-                          totalPatrolMinutes += patrolMinutes;
+                          if(!(Object.keys(JSON.parse(body).Response.patrol).length === 0 && JSON.parse(body).Response.patrol.constructor === Object))
+                          {
+                            var patrolMinutes = Number(JSON.parse(body).Response.patrol.allTime.secondsPlayed.basic.value)/60;
+                            //console.log("patrolMinutes:" + patrolMinutes+"\n")
+                            totalPatrolMinutes += patrolMinutes;
+                          }
 
-                          var raidMinutes = Number(JSON.parse(body).Response.raid.allTime.secondsPlayed.basic.value)/60;
-                          //console.log("raidMinutes:" + raidMinutes+"\n")
-                          totalRaidMinutes += raidMinutes
+                          if(!(Object.keys(JSON.parse(body).Response.raid).length === 0 && JSON.parse(body).Response.raid.constructor === Object))
+                          {
+                            var raidMinutes = Number(JSON.parse(body).Response.raid.allTime.secondsPlayed.basic.value)/60;
+                            //console.log("raidMinutes:" + raidMinutes+"\n")
+                            totalRaidMinutes += raidMinutes
+                          }
 
-                          var storyMinutes = Number(JSON.parse(body).Response.story.allTime.secondsPlayed.basic.value)/60;
-                          //console.log("storyMinutes:" + storyMinutes+"\n")
-                          totalStoryMinutes += storyMinutes
+                          if(!(Object.keys(JSON.parse(body).Response.story).length === 0 && JSON.parse(body).Response.story.constructor === Object))
+                          {
+                            var storyMinutes = Number(JSON.parse(body).Response.story.allTime.secondsPlayed.basic.value)/60;
+                            //console.log("storyMinutes:" + storyMinutes+"\n")
+                            totalStoryMinutes += storyMinutes
+                          }
 
-                          var strikesMinutes = Number(JSON.parse(body).Response.allStrikes.allTime.secondsPlayed.basic.value)/60;
-                          //console.log("strikesMinutes:" + strikesMinutes+"\n")
-                          totalStrikesMinutes += strikesMinutes
+                          if(!(Object.keys(JSON.parse(body).Response.allStrikes).length === 0 && JSON.parse(body).Response.allStrikes.constructor === Object))
+                          {
+                            var strikesMinutes = Number(JSON.parse(body).Response.allStrikes.allTime.secondsPlayed.basic.value)/60;
+                            //console.log("strikesMinutes:" + strikesMinutes+"\n")
+                            totalStrikesMinutes += strikesMinutes
+                          }
 
-
-                          minutesPlayed += (pvpMinutes + patrolMinutes + raidMinutes + storyMinutes + strikesMinutes);
+                          //minutesPlayed += (pvpMinutes + patrolMinutes + raidMinutes + storyMinutes + strikesMinutes);
                           count++;
+                          //console.log(minutesPlayed)
                           if(count == characterIDArray.length)
                           {
                             gatheringData = false;
@@ -93,7 +109,6 @@ exports.run = async (client, message,args) => {
                           if(!gatheringData)
                           {
                             message.channel.stopTyping()
-                            var hoursPlayed = minutesPlayed/60;
 
                             // message.channel.send({embed : {color: 0x4dd52b,
                             //     description: `Total Hours Played: ${Math.floor(hoursPlayed)} \n
@@ -102,11 +117,14 @@ exports.run = async (client, message,args) => {
                             //                   Total Raid Time: ${Math.floor(totalRaidMinutes/60)} \n
                             //                   Total Story Time: ${Math.floor(totalStoryMinutes/60)} \n
                             //                   Total Strikes Time: ${Math.floor(totalStrikesMinutes/60)}`}})
+                            hoursPlayed = Math.floor(totalPvpMinutes/60) + Math.floor(totalPatrolMinutes/60) +
+                              Math.floor(totalRaidMinutes/60 )+ Math.floor(totalStoryMinutes/60) + Math.floor(totalStrikesMinutes/60)
+
                             message.channel.send({embed : {color: 0x4dd52b,
                                 title: `Play time stats for  ${player}#${number}`,
                                 fields: [{
                                   name: "Total Hours Played",
-                                  value: Math.floor(hoursPlayed) + " hours"
+                                  value: hoursPlayed + " hours"
                                 },
                                 {
                                   name: "Total PVP Time",
