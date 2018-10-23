@@ -51,20 +51,22 @@ catch(err){
   logger.debug(err)
 }
 
-
-var activites = [`on ${client.guilds.size} servers`,'ask ?help','Ping Prometheus when I die']
-var currentlyAttemptingLogin = false;
-var loggedIn = false;
-
-var emojiMap =
-[
+var botStartUpInfo = {
+  emojiMap:[
   {key: 0,value:'Moderation'},
   {key: 1,value:'Games'},
   {key: 2,value:'Misc'},
   {key: 3,value:'Hank'},
   {key: 4,value:'Anime'},
-  {key: 5,value:'Back'}
-];
+  {key: 5,value:'Back'}],
+  activities: [`on ${client.guilds.size} servers`,
+               'ask ?help',
+               'Ping Prometheus when I die']
+};
+
+var currentlyAttemptingLogin = false;
+var loggedIn = false;
+
 
 
 client.on('ready', () => {
@@ -76,46 +78,29 @@ client.on('ready', () => {
   var counter = 0;
   resetRoleChannel();
 
-  var interval1 = setInterval(function()
-  {
-    if(counter == 0)
-    {
-      activites[counter] = `on ${client.guilds.size} servers`;
-    }
-    client.user.setGame(activites[counter])
-    if(counter < activites.length-1)
-    {
-      counter++
-    }
-    else
-    {
-      counter = 0
-    }
+  //playing ticker
+  var interval1 = setInterval(function(){
+    botTickerLoop(counter);
   },15*1000)
-
-  var interval2 = setInterval(function(){ // Set interval for checking
+  //Specific timed events
+  var interval2 = setInterval(function(){
       var date = new Date();
       //logger.debug(`Hours: ${date.getHours()} Minutes:${date.getMinutes()}`)
       if(date.getHours() === 16 && date.getMinutes() === 30)
       { // Check the time
           logger.info("Auto Setting Role");
           changeDefaultRole();
-        }
-  }, 60000);
-
-  var interval3 = setInterval(function(){ // Set interval for checking
-    resetRoleChannel();
-  }, 3600000);
-
-  var interval4 = setInterval(function(){ // Set interval for checking
-      var date = new Date();
-      //logger.debug(`Hours: ${date.getHours()} Minutes:${date.getMinutes()}`)
+      }
       if(date.getHours() === 16 && date.getMinutes() === 30)
       { // Check the time
           pingNewProspect();
-        }
+      }
 
   }, 60000);
+  //todo make this not have to be updated everyday
+  var interval3 = setInterval(function(){
+    resetRoleChannel();
+  }, 3600000);
 
 
 });
@@ -180,7 +165,6 @@ client.on('message', message => {
     }
 
 });
-
 
 client.on('guildMemberAdd', member => {
   var skynetData = skynet.newMemberAdded(member.guild.id)
@@ -249,12 +233,15 @@ client.on('guildMemberUpdate',function(oldMember,newMember){
     }
 })
 
+client.on('messageReactionAdd', (reaction, user) => {
+  parseReaction(reaction, user);
+});
+
 client.login(auth.token);
 
 
 
-function checkIfHelp(command,message)
-{
+function checkIfHelp(command,message){
   if(command == "help"){
     sendMainMenu(message)
     return true;
@@ -262,8 +249,7 @@ function checkIfHelp(command,message)
   return false;
 }
 
-function botHelpResponse(message)
-{
+function botHelpResponse(message){
     if(message.author.id !=client.user.id ) return false;
 
     message.embeds.forEach((embed)=>{
@@ -298,7 +284,7 @@ function botHelpResponse(message)
         const collector = message.createReactionCollector(filter, { time: 60000 });
 
         collector.on('collect', (reaction, reactionCollector) => {
-            var categoryString = emojiMap[filterEmojiArray.indexOf(reaction.emoji.name)].value
+            var categoryString = botStartUpInfo.emojiMap[filterEmojiArray.indexOf(reaction.emoji.name)].value
             if(categoryString == 'Back')
             {
               editMainMenu(message)
@@ -328,8 +314,7 @@ function botHelpResponse(message)
       return false;
   }
 
-function checkIfActive(command,message)
-{
+function checkIfActive(command,message){
   for(i in masterCommandList){
     if(masterCommandList[i].command.toLowerCase() == command)
     {
@@ -344,13 +329,11 @@ function checkIfActive(command,message)
   if(message.content == config.prefix + "help")return;
 }
 
-function respondToDM(message)
-{
+function respondToDM(message){
   message.reply("Thank you for messaging the Bot. The owner will get back to you soon.");
 }
 
-function sendMainMenu(message)
-{
+function sendMainMenu(message){
   message.author.send({embed : {color: 0x4dd52b,
       description: "**HELP MENU** \n"+
       "What would you like to know more about? \n" +
@@ -362,8 +345,7 @@ function sendMainMenu(message)
       return
 }
 
-function editMainMenu(message)
-{
+function editMainMenu(message){
   message.edit({embed : {color: 0x4dd52b,
       description: "**HELP MENU** \n"+
       "What would you like to know more about? \n" +
@@ -375,8 +357,7 @@ function editMainMenu(message)
       return
 }
 
-function editMenuPerCategory(commandCategory,message)
-{
+function editMenuPerCategory(commandCategory,message){
     var helpString = '';
     var spacer = ' ';
     for(i in masterCommandList){
@@ -399,8 +380,7 @@ function editMenuPerCategory(commandCategory,message)
     return
 }
 
-async function attemptLogin(client)
-{
+async function attemptLogin(client){
   logger.debug("Starting login Attempts")
   var loginAttempts = 0;
   var maxLoginAttempts = 10;
@@ -438,8 +418,7 @@ async function attemptLogin(client)
   return;
 }
 
-async function reactToMessage(message,reactions)
-{
+async function reactToMessage(message,reactions){
 
   if(message.author.id !=client.user.id )
   {
@@ -492,50 +471,11 @@ async function reactToMessage(message,reactions)
   return false;
 }
 
-
-client.on('messageReactionAdd', (reaction, user) => {
-    if(user.id == client.user.id) return;
-    if(reaction.message.author.id !=client.user.id) return;
-
-    if(reaction.emoji.name in skynet.reactionRoleID && reaction.message.embeds.length != 0
-      && reaction.message.embeds[0].description.indexOf("Welcome to Skynet!")>=0)
-    {
-        if (reaction.emoji.name in skynet.reactionRoleID)
-        {
-           logger.info("Going to set up roles for " + user.username)
-           setupBaseRoles(user.id,reaction.emoji.name);
-           return;
-        }
-    }
-    var guildID = 0
-    if(reaction.message.guild != null)
-    {
-        guildID = reaction.message.guild.id;
-    }
-    var spoilerData = skynet.getSpoilerRole(guildID, reaction.emoji.name)
-    if(spoilerData.getIsSuccess())
-    {
-      var skynetUser = client.guilds.get(auth.home).members.get(user.id);
-
-      if(skynetUser.roles.has(spoilerData.getMessageString()))
-      {
-        return;
-      }
-      skynetUser.addRoles(spoilerData.getMessageString())
-
-      skynetUser.user.send(
-        {embed : {color: 0x4dd52b,
-            description:"Spoiler role added." }})
-    }
-});
-
-
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function setupBaseRoles(userID, reactionName)
-{
+async function setupBaseRoles(userID, reactionName){
   var skynetUser = client.guilds.get(auth.home).members.get(userID);
   var dm = await skynetUser.createDM()
   dm.startTyping();
@@ -549,8 +489,7 @@ async function setupBaseRoles(userID, reactionName)
         description:finalMessage.getMessageString() }})
 }
 
-function userRolePurge()
-{
+function userRolePurge(){
   var userKickedString = ""
   var numOfUsers = 0
   var verb = " were "
@@ -600,8 +539,7 @@ function changeDefaultRole(){
     });
 }
 
-function checkIfCustomCommand(command_,message_)
-{
+function checkIfCustomCommand(command_,message_){
     try
     {
       fs.readFile('./Commands/Misc/customCommandsSave.json', (err, data) => {
@@ -628,8 +566,7 @@ function checkIfCustomCommand(command_,message_)
 
 }
 
-async function resetRoleChannel()
-{
+async function resetRoleChannel(){
   if(client.guilds.get(auth.home).channels.get(
   auth.roleChannel).lastMessageID != null)
   {
@@ -647,8 +584,7 @@ async function resetRoleChannel()
     return;
 }
 
-async function pingNewProspect()
-{
+async function pingNewProspect(){
 
   if(client.guilds.get(auth.home).channels.get(
   auth.prospectiveClanMemberChannel).lastMessageID != null)
@@ -665,4 +601,56 @@ async function pingNewProspect()
       `<@&${auth.onTheProcessor}> please read this page for more info about joining our clan.` );
 
     return;
+}
+
+function parseReaction(reaction_,user_){
+  if(user_.id == client.user.id) return;
+  if(reaction_.message.author.id !=client.user.id) return;
+
+  if(reaction_.emoji.name in skynet.reactionRoleID && reaction_.message.embeds.length != 0
+    && reaction_.message.embeds[0].description.indexOf("Welcome to Skynet!")>=0)
+  {
+      if (reaction_.emoji.name in skynet.reactionRoleID)
+      {
+         logger.info("Going to set up roles for " + user_.username)
+         setupBaseRoles(user_.id,reaction.emoji.name);
+         return;
+      }
+  }
+  var guildID = 0
+  if(reaction_.message.guild != null)
+  {
+      guildID = reaction_.message.guild.id;
+  }
+  var spoilerData = skynet.getSpoilerRole(guildID, reaction_.emoji.name)
+  if(spoilerData.getIsSuccess())
+  {
+    var skynetUser = client.guilds.get(auth.home).members.get(user_.id);
+
+    if(skynetUser.roles.has(spoilerData.getMessageString()))
+    {
+      return;
+    }
+    skynetUser.addRoles(spoilerData.getMessageString())
+
+    skynetUser.user.send(
+      {embed : {color: 0x4dd52b,
+          description:"Spoiler role added." }})
+  }
+}
+
+function botTickerLoop(counter_){
+  if(counter_ == 0)
+  {
+    botStartUpInfo.activities[counter_] = `on ${client.guilds.size} servers`;
+  }
+  client.user.setGame(botStartUpInfo.activities[counter_])
+  if(counter_ < botStartUpInfo.activities.length-1)
+  {
+    counter_++
+  }
+  else
+  {
+    counter_ = 0
+  }
 }
