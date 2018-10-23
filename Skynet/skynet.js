@@ -7,7 +7,6 @@ class skynetBase {
     this.homeGuildID = auth_.home;
     this.debugStatus = config_.debug;
     this.debugUser   = auth_.debugUser;
-<<<<<<< HEAD
     this.reactionRoleID = {
         "🔰":"377919983650471937", // TODO: Put these in config
         "🔹":"351126070889807872",// TODO: put these in config
@@ -15,8 +14,6 @@ class skynetBase {
         "377203229873930251":"350883091725811742",//hunter
         "377203230653939713":"350884452995694594"//warlock
     };
-=======
->>>>>>> 25c7efe14bc105899e307ccaf80e073191d3073b
   }
 
   newRoleAdded()

@@ -153,7 +153,6 @@
   "active":true,
   "subfolder":"Destiny",
   "hidden":true
-<<<<<<< HEAD
 },
 {
   "command":"play",
@@ -161,7 +160,5 @@
   "active":true,
   "subfolder":"Music",
   "hidden":true
-=======
->>>>>>> 25c7efe14bc105899e307ccaf80e073191d3073b
 }
 ]

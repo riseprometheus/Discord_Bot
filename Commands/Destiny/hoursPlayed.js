@@ -8,14 +8,11 @@ exports.run = async (client, message,args) => {
     var gatheringData = true;
     var playerID = ""
 
-<<<<<<< HEAD
     if (args === undefined || args.length == 0) {
       message.reply("Please provide a Battle.Net ID for me to search for.")
       message.channel.stopTyping();
       return;
     }
-=======
->>>>>>> 25c7efe14bc105899e307ccaf80e073191d3073b
     var baseRequest = request.defaults({headers: {'X-API-Key':auth.destinyAPI}});
     var player = args[0].split("#")[0];
     var number = args[0].split("#")[1];
