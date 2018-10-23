@@ -6,6 +6,10 @@ exports.run = async (client, message,args) => {
     message.channel.startTyping();
 
     const HOST = 'https://www.bungie.net/Platform/Destiny2/';
+<<<<<<< HEAD
+=======
+    var characterIDArray = [];
+>>>>>>> 25c7efe14bc105899e307ccaf80e073191d3073b
     var count = 0;
     var gatheringData = true;
     var playerID = ""
@@ -37,6 +41,7 @@ exports.run = async (client, message,args) => {
               }
             }
 
+<<<<<<< HEAD
             baseRequest(HOST + '4/Account/' + playerID + '/stats',
         			  function (err, response, body) {
                   try
@@ -54,11 +59,25 @@ exports.run = async (client, message,args) => {
                   }
                   catch(error)
                   {
+=======
+            baseRequest(HOST + '4/Profile/' + playerID + '/?components=100',
+        			  function (err, response, body) {
+                  try
+                  {
+                  characterIDArray = JSON.parse(body).Response.profile.data.characterIds;
+                  }
+                  catch(error)
+                  {
+                    //console.log(error)
+                    message.channel.stopTyping();
+                    message.reply("Sorry it looks like there was a problem retreiving that info from the Destiny Api.");
+>>>>>>> 25c7efe14bc105899e307ccaf80e073191d3073b
                     return;
                   }
                   var raidActivitiesCleared = 0;
                   var congratsString = "Looks like you don't qualify for any raid roles."
                   var roleID = ""
+<<<<<<< HEAD
                   characterArray.forEach((character)=>
                   {
                     baseRequest(HOST + '4/Account/' + playerID + '/Character/' + character.characterId +'/stats',
@@ -72,6 +91,14 @@ exports.run = async (client, message,args) => {
                               return
                           }
                           if((Object.keys(JSON.parse(body).Response.raid).length === 0 && JSON.parse(body).Response.raid.constructor === Object))
+=======
+                  characterIDArray.forEach((characterID)=>
+                  {
+                    baseRequest(HOST + '4/Account/' + playerID + '/Character/' + characterID +'/stats',
+                      function (err, response, body) {
+                          count++;
+                          if(JSON.parse(body).Response.raid=={})
+>>>>>>> 25c7efe14bc105899e307ccaf80e073191d3073b
                           {
                             return;
                           }
@@ -83,7 +110,11 @@ exports.run = async (client, message,args) => {
                           {
                             return;
                           }
+<<<<<<< HEAD
                           if(count == characterArray.length)
+=======
+                          if(count == characterIDArray.length)
+>>>>>>> 25c7efe14bc105899e307ccaf80e073191d3073b
                           {
                             gatheringData = false;
                           }
