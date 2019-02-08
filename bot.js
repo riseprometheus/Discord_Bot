@@ -80,13 +80,13 @@ client.on('ready', () => {
   logger.debug(`Connected to ${client.guilds.size} server(s)`);
   var dateStart = new Date();
   logger.info("Starting up at: " + dateStart.getHours() + ":" + dateStart.getMinutes())
-  client.user.setGame(`Bot is starting up`);
-  var counter = 0;
+  client.user.setActivity('Bot is starting up', { type: 'WATCHING:' });
+  var botInfo = {counter: 0};
 
 
   //playing ticker and check for new registration
   var interval1 = setInterval(function(){
-    botTickerLoop(counter);
+    botTickerLoop(botInfo);
   },15*1000)
 
 });
@@ -490,19 +490,19 @@ function checkForMatchingChannel(channelID1,channelID2){
   return channelID1==channelID2;
 }
 
-function botTickerLoop(counter_){
-  if(counter_ == 0)
+function botTickerLoop(botInfo){
+  if(botInfo.counter == 0)
   {
-    botStartUpInfo.activities[counter_] = `on ${client.guilds.size} servers`;
+    botStartUpInfo.activities[botInfo.counter] = `on ${client.guilds.size} servers`;
   }
-  client.user.setGame(botStartUpInfo.activities[counter_])
-  if(counter_ < botStartUpInfo.activities.length-1)
+  client.user.setActivity(botStartUpInfo.activities[botInfo.counter], { type: 'WATCHING' })
+  if(botInfo.counter < botStartUpInfo.activities.length-1)
   {
-    counter_++
+    botInfo.counter++
   }
   else
   {
-    counter_ = 0
+    botInfo.counter = 0
   }
 }
 
