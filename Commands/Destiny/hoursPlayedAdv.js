@@ -1,24 +1,37 @@
 exports.run = async (client, message,args) => {
     var request = require('request')
     var auth = require('./../../auth.json')
-
     message.channel.startTyping();
 
     const HOST = 'https://www.bungie.net/Platform/Destiny2/';
-    var characterIDArray = [];
+    var characterArray = [];
     var count = 0;
     var gatheringData = true;
-    var playerID = ""
+    var playerID = "";
+    var nicknameIsUser = false;
 
     if (args === undefined || args.length == 0) {
-      message.reply("Please provide a Battle.Net ID for me to search for.")
-      message.channel.stopTyping();
-      return;
+      if(!message.member.nickname.includes("#")){
+        message.reply("Please provide a Battle.Net ID for me to search for.")
+        message.channel.stopTyping();
+        return;
+      }
+      nicknameIsUser = true;
     }
 
     var baseRequest = request.defaults({headers: {'X-API-Key':auth.destinyAPI}});
-    var player = args[0].split("#")[0];
-    var number = args[0].split("#")[1];
+    var player = "";
+    var number = "";
+
+    if(nicknameIsUser){
+      var name = message.member.nickname;
+      player = name.split("#")[0];
+      number = name.split("#")[1];
+    }else{
+      player = args[0].split("#")[0];
+      number = args[0].split("#")[1];
+    }
+
     console.log(player+"#"+number)
     try
     {
@@ -41,7 +54,7 @@ exports.run = async (client, message,args) => {
               return;
             }
 
-            baseRequest(HOST + '4/Profile/' + playerID + '/?components=100',
+            baseRequest(HOST + '4/Account/' + playerID + '/stats',
         			  function (err, response, body) {
                   try
                   {
@@ -51,7 +64,7 @@ exports.run = async (client, message,args) => {
                         message.reply("Looks like something is going on on Bungie's api so my information might not be complete. Please try again later for a more complete answer.")
                         return
                     }
-                    characterIDArray = JSON.parse(body).Response.profile.data.characterIds;
+                    characterArray = JSON.parse(body).Response.characters
                   }
                   catch(error)
                   {
@@ -66,15 +79,16 @@ exports.run = async (client, message,args) => {
                   var totalStoryMinutes = 0;
                   var totalStrikesMinutes = 0;
                   //console.log('start: ' +minutesPlayed)
-                  characterIDArray.forEach((characterID)=>
+                  characterArray.forEach((character)=>
                   {
-                    baseRequest(HOST + '4/Account/' + playerID + '/Character/' + characterID +'/stats',
+                    baseRequest(HOST + '4/Account/' + playerID + '/Character/' + character.characterId +'/stats',
                 			  function (err, response, body) {
                           //console.log(`Minutes for ${count} ` + JSON.parse(body).Response.character.data.minutesPlayedTotal)
                           //.log(Number(JSON.parse(body).Response.character.data.minutesPlayedTotal))
                           if(JSON.parse(body).ErrorCode !=1)
                           {
                               message.channel.stopTyping();
+                              console.log(HOST + '4/Account/' + playerID + '/Character/' + character.characterId +'/stats');
                               message.reply("Looks like something is going on on Bungie's api so my information might not be complete. Please try again later for a more complete answer.")
                               return
                           }
@@ -116,7 +130,7 @@ exports.run = async (client, message,args) => {
                           //minutesPlayed += (pvpMinutes + patrolMinutes + raidMinutes + storyMinutes + strikesMinutes);
                           count++;
                           //console.log(minutesPlayed)
-                          if(count == characterIDArray.length)
+                          if(count == characterArray.length)
                           {
                             gatheringData = false;
                           }

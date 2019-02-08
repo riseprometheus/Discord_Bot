@@ -5,3 +5,6 @@ serverConfig.json
 customCommandsSave.json
 combined.log
 destinyConfig.json
+credentials.json
+token.json
+skynetConfig.json

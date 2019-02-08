@@ -1,7 +1,7 @@
 exports.run = async (client, message,args) => {
-    var request = require('request')
-    var auth = require('./../../auth.json')
-    var roleIDList = require('./destinyConfig.json')
+    var request = require('request');
+    var auth = require('./../../auth.json');
+    var roleIDList = require('./destinyConfig.json');
 
     message.channel.startTyping();
 
@@ -9,16 +9,38 @@ exports.run = async (client, message,args) => {
     var count = 0;
     var gatheringData = true;
     var playerID = "";
+    var nicknameIsUser = false;
 
     if (args === undefined || args.length == 0) {
-      message.reply("Please provide a Battle.Net ID for me to search for.")
-      message.channel.stopTyping();
-      return;
+      console.log(message.member.nickname);
+
+      if( message.member.nickname == null){
+        message.reply("Please provide a Battle.Net ID for me to search for.")
+        message.channel.stopTyping();
+        return;
+      }
+
+      if(!message.member.nickname.includes("#") || message.member.nickname == null){
+        message.reply("Please provide a Battle.Net ID for me to search for.")
+        message.channel.stopTyping();
+        return;
+      }
+      nicknameIsUser = true;
     }
 
     var baseRequest = request.defaults({headers: {'X-API-Key':auth.destinyAPI}});
-    var player = args[0].split("#")[0];
-    var number = args[0].split("#")[1];
+
+    var player = "";
+    var number = "";
+    if(nicknameIsUser){
+      var name = message.member.nickname;
+      player = name.split("#")[0];
+      number = name.split("#")[1];
+    }else{
+      player = args[0].split("#")[0];
+      number = args[0].split("#")[1];
+    }
+
     try
     {
       baseRequest(HOST + 'SearchDestinyPlayer/4/' + player +'%23'+ number+'/',
@@ -144,7 +166,8 @@ exports.run = async (client, message,args) => {
 
                             if(roleID != "")
                             {
-                              message.member.addRole(roleID)
+                                message.member.addRole(roleID).catch(err=>console.log("Roles aren't setup on this server."));
+
                             }
 
                             return;

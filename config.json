@@ -2,5 +2,6 @@
   "prefix": "?",
   "modRole":"Admin",
   "botRole":"BOT MAN",
-  "debug":false
+  "debug":false,
+  "useSkynet":true
 }

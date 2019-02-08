@@ -6,15 +6,17 @@
   "author": "Christopher Bilbo",
   "dependencies": {
     "discord.io": "github:woor/discord.io#gateway_v6",
-    "discord.js": "^11.2.1",
-    "ffmpeg-binaries": "^3.2.2-3",
+    "discord.js": "^11.4.2",
+    "ffmpeg-binaries": "^3.2.2",
     "googleapis": "^34.0.0",
     "node-gyp": "^3.8.0",
+    "opn": "^5.4.0",
     "opus": "0.0.0",
     "opusscript": "0.0.6",
     "rebuild": "^0.1.2",
     "request": "^2.88.0",
-    "winston": "^3.0.0",
+    "server-destroy": "^1.0.1",
+    "winston": "^3.2.1",
     "youtube-audio-stream": "^0.2.0"
   }
 }

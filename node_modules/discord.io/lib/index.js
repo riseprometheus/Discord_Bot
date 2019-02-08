@@ -958,6 +958,7 @@ DCP.deleteChannel = function(channelID, callback) {
  * @arg {Number} [input.bitrate] - [Voice Only] The bitrate for the channel.
  * @arg {Number} [input.position] - The channel's position on the list.
  * @arg {Number} [input.user_limit] - [Voice Only] Imposes a user limit on a voice channel.
+ * @arg {Number} [input.rate_limit_per_user] - [Text Only] Imposes a rate limit on messages sent by users (slowmode).
  */
 DCP.editChannelInfo = function(input, callback) {
 	var channel, payload;
@@ -971,7 +972,8 @@ DCP.editChannelInfo = function(input, callback) {
 			position: channel.position,
 			user_limit: channel.user_limit,
 			nsfw: channel.nsfw,
-			parent_id: (input.parentID === undefined ? channel.parent_id : input.parentID)
+			parent_id: (input.parentID === undefined ? channel.parent_id : input.parentID),
+			rate_limit_per_user: channel.rate_limit_per_user
 		};
 
 		for (var key in input) {
@@ -983,6 +985,10 @@ DCP.editChannelInfo = function(input, callback) {
 				}
 				if (key === 'user_limit') {
 					payload.user_limit = Math.min( Math.max( input.user_limit, 0), 99);
+					continue;
+				}
+				if (key === 'rate_limit_per_user') {
+					payload.rate_limit_per_user = Math.min( Math.max( input.rate_limit_per_user, 0), 120);
 					continue;
 				}
 			}

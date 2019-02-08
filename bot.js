@@ -6,6 +6,10 @@ var winston = require('winston');
 var auth = require('./auth.json');
 var config = require('./config.json')
 const fs = require('fs')
+const googleClient = require('./GoogleAPI/client.js')
+const skynet = require('./Skynet/skynet.js');
+var skynetClient = "";
+
 
 //info for winson
 const logger = winston.createLogger({
@@ -22,8 +26,10 @@ const logger = winston.createLogger({
   ]
 });
 
-const skynetModule = require('./Skynet/skynet.js')
-const skynet = new skynetModule.skynetBase(auth,config);
+if(config.useSkynet){
+  skynetClient = new skynet.skynetBase();
+
+}
 
 //Checking for master command list
 try{
@@ -76,32 +82,12 @@ client.on('ready', () => {
   logger.info("Starting up at: " + dateStart.getHours() + ":" + dateStart.getMinutes())
   client.user.setGame(`Bot is starting up`);
   var counter = 0;
-  resetRoleChannel();
 
-  //playing ticker
+
+  //playing ticker and check for new registration
   var interval1 = setInterval(function(){
     botTickerLoop(counter);
   },15*1000)
-  //Specific timed events
-  var interval2 = setInterval(function(){
-      var date = new Date();
-      //logger.debug(`Hours: ${date.getHours()} Minutes:${date.getMinutes()}`)
-      if(date.getHours() === 16 && date.getMinutes() === 30)
-      { // Check the time
-          logger.info("Auto Setting Role");
-          changeDefaultRole();
-      }
-      if(date.getHours() === 16 && date.getMinutes() === 30)
-      { // Check the time
-          pingNewProspect();
-      }
-
-  }, 60000);
-  //todo make this not have to be updated everyday
-  var interval3 = setInterval(function(){
-    resetRoleChannel();
-  }, 3600000);
-
 
 });
 
@@ -109,14 +95,6 @@ client.on('message', message => {
   if(botHelpResponse(message) == true){//why doesn't if(botHelpResponse(message)) not work?
     return;
   };
-  if(reactToMessage(message,["🔰","🔹"]) == true)
-  {
-    return;
-  }
-  if(reactToMessage(message,["⚠"]) == true)
-  {
-    return;
-  }
 
   if(message.author.bot) return;
 
@@ -136,54 +114,38 @@ client.on('message', message => {
   try {
       // let functionFolder = require('./Commands/getFunctionMap.js');
       // var folder = functionFolder.run(command);
-      if(message.content.indexOf('/') != -1 && command != "customcommand" && command != "play"){
+      if(message.content.indexOf('/') != -1 && command != "customcommand" && command !="sendtochannel" && "play"){
         message.reply("Please don't try to mess around with me too much.");
         return;
       }
 
-      if(checkIfHelp(command,message)){
-        return;
-      };
+      if(checkIfHelp(command,message)){return;};
 
-      if(checkIfCustomCommand(command,message) == true)
-      {
+      if(checkIfCustomCommand(command,message) == true){return;}
+
+      if(config.useSkynet && message.content.indexOf('skynetSetup') != -1){
+        skynetClient.setupConfig(message);
         return;
       }
 
       var folder = checkIfActive(command,message);
 
-
       //logger.debug("Loaded folder: " + folder)
       let commandFile = require(`./commands/${folder}/${command}.js`);
-
 
       commandFile.run(client, message, args);
     }
     catch (err) {
       if(message.content == config.prefix + "help") return;
-     //logger.debug('Error thrown when loading file: ' + err)
+     logger.debug('Error thrown when loading file: ' + err)
     }
 
 });
 
 client.on('guildMemberAdd', member => {
-  var skynetData = skynet.newMemberAdded(member.guild.id)
-  if(skynetData.getIsSuccess())
-  {
-    member.addRole(auth.defaultRole) //// TODO: move to config_
-    sleep(1500)
-    var setUpData = skynet.beginSetup(member.id)
-    if(!skynet.checkIfDebug(member.id))
-    {
-      member.user.send(skynetData.getMessageString())
-    }
-
-    if(setUpData.getIsSuccess())
-    {
-      member.user.send(
-        {embed : {color: 0x4dd52b,
-            description:setUpData.getMessageString() }}).then(logger.info(`Message sent to ${member.user.toString()}. Awaiting Response.`))
-    }
+  if(config.useSkynet){
+    skynetClient.addNewUserRole(client,member);
+    return;
   }
 });
 
@@ -234,7 +196,9 @@ client.on('guildMemberUpdate',function(oldMember,newMember){
 })
 
 client.on('messageReactionAdd', (reaction, user) => {
-  parseReaction(reaction, user);
+    parseReaction(reaction, user)
+
+  return;
 });
 
 client.login(auth.token);
@@ -418,119 +382,16 @@ async function attemptLogin(client){
   return;
 }
 
-async function reactToMessage(message,reactions){
-
-  if(message.author.id !=client.user.id )
-  {
-    return false;
-  }
-
-  if(message.embeds.length == 0)
-  {
-    return false;
-  }
-
-  if(message.embeds[0].url != null)
-  {
-    return false;
-  }
-
-  if(message.embeds[0].description == null)
-  {
-    return;
-  }
-
-  if(message.embeds[0])
-  {
-    if(message.embeds[0].description.indexOf("Welcome to Skynet!")>=0)
-    {
-      if(reactions[0] ==="🔰")
-      {
-        for (const emoji of reactions)
-        {
-          await message.react(emoji);
-        }
-        return true;
-      }
-    }
-
-    if(message.embeds[0].description.indexOf("React with ⚠")>=0)
-    {
-
-      if(reactions[0] ==="⚠")
-      {
-        for (const emoji of reactions)
-        {
-          await message.react(emoji);
-        }
-        return true;
-      }
-    }
-  }
-
-  return false;
-}
-
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function setupBaseRoles(userID, reactionName){
-  var skynetUser = client.guilds.get(auth.home).members.get(userID);
-  var dm = await skynetUser.createDM()
-  dm.startTyping();
-  var finalMessage = skynet.setupFinalString(skynet.reactionRoleID[reactionName])
-  await skynetUser.addRoles(skynet.reactionRoleID[reactionName])
-  await skynetUser.removeRole(auth.defaultRole)
-  await sleep(2000)
-  dm.stopTyping()
-  await skynetUser.user.send(
-    {embed : {color: 0x4dd52b,
-        description:finalMessage.getMessageString() }})
-}
 
-function userRolePurge(){
-  var userKickedString = ""
-  var numOfUsers = 0
-  var verb = " were "
-  var clanMembers = client.guilds.get(auth.home).members
-
-  clanMembers.forEach(function(guildMember,guildMemberID)
-  {
-      if(guildMember.roles.has(auth.defaultRole))
-      {
-        if((Date.now()-guildMember.joinedTimestamp) > 86400000) //1 day = 86400000
-        {
-          try{
-          guildMember.user.send(skynet.getNewRoleKickString()).
-          then(userKickedString +=(" "+guildMember.user.username) ).
-          then(guildMember.kick())
-          numOfUsers++
-          }
-          catch(error)
-          {
-            client.guilds.get(auth.home).channels.get(auth.homeTextChannel).send(`@${guildMember.nickname} Please set up your roles before you are kicked by an @T-1000`)
-          }
-        }
-      }
-  })
-  if(userKickedString.length == 0)
-  {
-    userKickedString = "0 members"
-  }
-  if(numOfUsers ==1)
-  {
-    verb = " was "
-  }
-  client.guilds.get(auth.home).channels.get(auth.modChannel).send(userKickedString + verb +"removed for not setting up their roles.")
-
-}
 
 function changeDefaultRole(){
   var clanMembers = client.guilds.get(auth.home).members;
 
-  clanMembers.forEach(function(guildMember,guildMemberID)
-  {
+  clanMembers.forEach(function(guildMember,guildMemberID){
       if(guildMember.roles.has(auth.defaultRole))
       {
         guildMember.removeRole(auth.defaultRole);
@@ -540,49 +401,26 @@ function changeDefaultRole(){
 }
 
 function checkIfCustomCommand(command_,message_){
-    try
-    {
+    try  {
       fs.readFile('./Commands/Misc/customCommandsSave.json', (err, data) => {
       if (err) throw err;
       let jsonArray = JSON.parse(data);
 
       jsonArray.forEach(commandEntry =>{
 
-        if(command_ == commandEntry.command.toLowerCase())
-        {
+        if(command_ == commandEntry.command.toLowerCase()){
             message_.channel.send(commandEntry.response)
             return true;
         }
         });
-
       })
-
     }
-    catch(err)
-    {
+    catch(err){
       logger.debug("Problem loading custom command, error: " + err)
       return false;
     }
-
 }
 
-async function resetRoleChannel(){
-  if(client.guilds.get(auth.home).channels.get(
-  auth.roleChannel).lastMessageID != null)
-  {
-    var lastMessage = await client.guilds.get(auth.home).channels.get(
-      auth.roleChannel).fetchMessage(client.guilds.get(auth.home).channels.get(
-        auth.roleChannel).lastMessageID);
-
-        lastMessage.delete();
-  }
-
-    client.guilds.get(auth.home).channels.get(auth.roleChannel).send(
-      {embed : {color: 0x4dd52b,
-          description:"React with ⚠ if you would like the spoiler role for this server." }})
-
-    return;
-}
 
 async function pingNewProspect(){
 
@@ -606,37 +444,50 @@ async function pingNewProspect(){
 function parseReaction(reaction_,user_){
   if(user_.id == client.user.id) return;
   if(reaction_.message.author.id !=client.user.id) return;
-
-  if(reaction_.emoji.name in skynet.reactionRoleID && reaction_.message.embeds.length != 0
-    && reaction_.message.embeds[0].description.indexOf("Welcome to Skynet!")>=0)
+  if(checkForMatchingChannel(reaction_.message.channel.id,auth.setupChannel))
   {
-      if (reaction_.emoji.name in skynet.reactionRoleID)
-      {
-         logger.info("Going to set up roles for " + user_.username)
-         setupBaseRoles(user_.id,reaction.emoji.name);
-         return;
-      }
+    addUserRoleViaReaction(reaction_,user_);
   }
-  var guildID = 0
-  if(reaction_.message.guild != null)
-  {
-      guildID = reaction_.message.guild.id;
-  }
-  var spoilerData = skynet.getSpoilerRole(guildID, reaction_.emoji.name)
-  if(spoilerData.getIsSuccess())
-  {
-    var skynetUser = client.guilds.get(auth.home).members.get(user_.id);
+}
 
-    if(skynetUser.roles.has(spoilerData.getMessageString()))
-    {
-      return;
-    }
-    skynetUser.addRoles(spoilerData.getMessageString())
+function addUserRoleViaReaction(reaction_,user_){
+  //map emoji id to role
+  var roleMap = new Map([
+  ["377203230653939713",'350884452995694594'],//warlock
+  ["377203229873930251",'350883091725811742'],//hunter
+  ["377207705594757123",'373629204769669121'],//titan
+  ["⚠",'479740347610562560'],//spoiler
+  ["🔹",'351126070889807872'],//friend
+  ["🔰",'377919983650471937']]);//prospect
 
-    skynetUser.user.send(
-      {embed : {color: 0x4dd52b,
-          description:"Spoiler role added." }})
+  var roleNameMap = new Map([
+  ["377203230653939713",'warlock'],//warlock
+  ["377203229873930251",'hunter'],//hunter
+  ["377207705594757123",'titan'],//titan
+  ["🔹",'AMD Processor'],//friend
+  ["🔰",'On The Processor']]);
+
+  var member = client.guilds.get(auth.home).members.get(user_.id);
+  var roleID = roleMap.get(reaction_.emoji.id);
+  if (typeof roleID != 'undefined'){
+    member.addRole(roleMap.get(reaction_.emoji.id)).then(user_.send(`Added the ${roleNameMap.get(reaction_.emoji.id)} role.`)).then(removeNewUserRole(member)).catch();
+    return;
   }
+  roleID = roleMap.get(reaction_.emoji.name);
+  if (typeof roleID != 'undefined'){
+    member.addRole(roleMap.get(reaction_.emoji.name)).then(user_.send(`Added the ${roleNameMap.get(reaction_.emoji.name)} role.`)).then(removeNewUserRole(member)).catch();
+    return;
+  }
+}
+
+function removeNewUserRole(member_){
+  if(member_.roles.has(auth.defaultRole)){
+    member_.removeRole(auth.defaultRole);
+  }
+}
+
+function checkForMatchingChannel(channelID1,channelID2){
+  return channelID1==channelID2;
 }
 
 function botTickerLoop(counter_){
@@ -653,4 +504,31 @@ function botTickerLoop(counter_){
   {
     counter_ = 0
   }
+}
+
+function getRegistrationArray(){
+  let registration = require("./GoogleAPI/Sheets/registration.js")
+  return new Promise(function(resolve,reject){
+    registration.getOutstandingRegistrations((regArray)=>{
+      resolve(regArray);})
+  });
+}
+
+async function checkForNewRegistration(){
+  var regArray =  await getRegistrationArray();
+  regArray.forEach(function(element) {
+    if(element[4]!="Yes"){
+    client.guilds.get(auth.home).channels.get(auth.modChannel).send({embed : {color: 0x4dd52b,
+        description: `<@&${auth.modRole}> A New user would like to join the clan!
+        \n **Discord Name**: ${element[1]}
+        \n **Battle.net Name**: ${element[2]}
+        \n **Found Us From**: ${element[3]}`,
+        timestamp: new Date(),
+        footer: {
+          icon_url: client.user.avatarURL,
+          text: "Brought to you by Prometheus"
+        } }});
+      }
+  });
+
 }

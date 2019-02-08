@@ -35,6 +35,20 @@
 "hidden":true
 },
 {
+"command":"sendToChannel",
+"help":"Send a message to a specified channel. Parameters are <ChannelID, msg>",
+"active":true,
+"subfolder":"Moderation",
+"hidden":false
+},
+{
+"command":"editMessage",
+"help":"Edit a bot message. Parameters are <MessageID, msg>. Must be run in channel of message.",
+"active":true,
+"subfolder":"Moderation",
+"hidden":false
+},
+{
   "command":"sweep",
   "help":"Deletes the last messages sent in a two week period. Requires Manage_Messages permission",
   "active":true,
