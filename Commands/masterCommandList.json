@@ -7,16 +7,37 @@
   "hidden":false
 },
 {
-"command":"nickname",
-"help":"Set your nickname. Requires permission to change nickname.",
-"active":false,
+"command":"addGameRole",
+"help":"Add game role for mentioning groups.",
+"active":true,
+"subfolder":"Moderation",
+"hidden":true
+},
+{
+"command":"showGameRoles",
+"help":"Show Game Roles Available.",
+"active":true,
 "subfolder":"Moderation",
 "hidden":false
 },
 {
-"command":"pruneRoleWithTime",
-"help":"Check if user has a role determined by config and they have been on server for a period of time.",
+"command":"subTo",
+"help":"Subscribe to game role.",
 "active":true,
+"subfolder":"Moderation",
+"hidden":false
+},
+{
+"command":"unsubTo",
+"help":"Unsubscribe to game role.",
+"active":true,
+"subfolder":"Moderation",
+"hidden":false
+},
+{
+"command":"nickname",
+"help":"Set your nickname. Requires permission to change nickname.",
+"active":false,
 "subfolder":"Moderation",
 "hidden":false
 },
@@ -26,13 +47,6 @@
 "active":true,
 "subfolder":"Moderation",
 "hidden":false
-},
-{
-"command":"postSpoilerSignUp",
-"help":"Send a post to start a spoiler role sign up.",
-"active":true,
-"subfolder":"Moderation",
-"hidden":true
 },
 {
 "command":"sendToChannel",

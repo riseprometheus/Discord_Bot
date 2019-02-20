@@ -137,7 +137,7 @@ client.on('message', message => {
     }
     catch (err) {
       if(message.content == config.prefix + "help") return;
-     logger.debug('Error thrown when loading file: ' + err)
+     //logger.debug('Error thrown when loading file: ' + err)
     }
 
 });
@@ -185,15 +185,7 @@ client.on('resume',function(err){
   logger.debug("Successfully logged back in. Resuming duties.");
 })
 
-client.on('guildMemberUpdate',function(oldMember,newMember){
-  if(!oldMember.roles.find("name", "T-800") && newMember.roles.find("name", "T-800")){
-    var newMemberName = newMember.user.toString();
-    client.channels.get(
-      auth.
-      homeTextChannel).send(`<@&${auth.ClanMember}> welcome ${newMemberName} to the clan!`);
 
-    }
-})
 
 client.on('messageReactionAdd', (reaction, user) => {
     parseReaction(reaction, user)
