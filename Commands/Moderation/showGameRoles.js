@@ -18,7 +18,7 @@ exports.run = (client, message,args) => {
         text: "Brought to you by Prometheus"
       }
 
-    }});
+    }}).then(message.delete());
 
   });
 }
