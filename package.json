@@ -9,6 +9,7 @@
     "discord.js": "^11.4.2",
     "ffmpeg-binaries": "^3.2.2",
     "googleapis": "^34.0.0",
+    "mysql": "^2.16.0",
     "node-gyp": "^3.8.0",
     "opn": "^5.4.0",
     "opus": "0.0.0",

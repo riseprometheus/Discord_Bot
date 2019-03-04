@@ -7,33 +7,46 @@ exports.run = (client, message,args) => {
   const fs = require('fs');
   //check for role already there
   var gamesProcessed = 0;
-  fs.readFile('./Commands/Moderation/gameRoles.txt', function read(err, data) {
-  if (err) {
 
-  }
+  var mysql      = require('mysql');
+  var mysqlConfig = require('../../sqlconfig.json')
 
-    var gameRoles = data.toString().split("\n");
-    var roleExists = false;
-    gameRoles.forEach(function(gameString){
-      gamesProcessed++
-      if(roleExists == true) return;
-      //if(gameString == "") continue;
-      if(gameString.toLowerCase()==game.toLowerCase()){
-        roleExists = true;
-      }
-
+  var connection = mysql.createConnection({
+      host     : mysqlConfig.host,
+      user     : mysqlConfig.user,
+      password : mysqlConfig.password,
+      database : mysqlConfig.database
     });
-    if(gamesProcessed == gameRoles.length ){
-        addGameRoleTouser(client,message,game,roleExists);
-    }
 
+    connection.connect();
+    var myQuery = `SELECT * FROM discord_sql_server.game_roles where server_id = ${message.guild.id}`
+    connection.query(myQuery, function (error, results, fields) {
+      if (error){
+        console.log(error);
+      }
+      else{
+        var roleExists = false;
+        results.forEach(function(sqlRecord){
+          gamesProcessed++
+          if(roleExists == true) return;
+          //if(gameString == "") continue;
+          if(sqlRecord.game.toLowerCase()==game.toLowerCase()){
+            roleExists = true;
+          }
+
+        });
+        if(gamesProcessed == results.length ){
+            addGameRoleToUser(client,message,game,roleExists);
+        }
+
+      }
   });
 
   return;
 
 }
 
-function addGameRoleTouser(client,message,game, roleExists){
+function addGameRoleToUser(client,message,game, roleExists){
   if(roleExists){
   message.channel.guild.roles.forEach(function(role,roleID){
     if(role.name.toLowerCase() == game.toLowerCase()){

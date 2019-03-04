@@ -1,24 +1,61 @@
 exports.run = (client, message,args) => {
   const fs = require('fs');
-  fs.readFile('./Commands/Moderation/gameRoles.txt', function read(err, data) {
-    if (err) {
-      return;
+
+  var mysql      = require('mysql');
+  var mysqlConfig = require('../../sqlconfig.json')
+
+  var connection = mysql.createConnection({
+      host     : mysqlConfig.host,
+      user     : mysqlConfig.user,
+      password : mysqlConfig.password,
+      database : mysqlConfig.database
+    });
+
+    connection.connect();
+    var myQuery = `SELECT * FROM discord_sql_server.game_roles where server_id = ${message.guild.id}`
+    connection.query(myQuery, function (error, results, fields) {
+    if (error){
+      console.log(error);
     }
-    var gameRoles = data.toString();
-    message.channel.send({embed : {color: 0x4dd52b,
-        title: `Current List Of Supported Game Roles`,
-        fields: [{
-          name: "Games:",
-          value: gameRoles
-        }
-      ],
-      timestamp: new Date(),
-      footer: {
-        icon_url: client.user.avatarURL,
-        text: "Brought to you by Prometheus"
+    else{
+      var gameRoles ="";
+      if(results.length > 0){
+        results.forEach((sqlRecord)=>{
+          gameRoles += `${sqlRecord.game}\n` ;
+        });
+        message.channel.send({embed : {color: 0x4dd52b,
+            title: `Current List Of Supported Game Roles`,
+            fields: [{
+              name: "Games:",
+              value: gameRoles
+            }
+          ],
+          timestamp: new Date(),
+          footer: {
+            icon_url: client.user.avatarURL,
+            text: "Brought to you by Prometheus"
+          }
+
+        }}).then(message.delete());
+
+
+      }else{
+        message.channel.send({embed : {color: 0x4dd52b,
+            title: `No Game Roles Found`,
+            fields: [{
+              name: "Games:",
+              value: "You don't have any game roles set on this server."
+            }
+          ],
+          timestamp: new Date(),
+          footer: {
+            icon_url: client.user.avatarURL,
+            text: "Brought to you by Prometheus"
+          }
+
+        }})
       }
-
-    }}).then(message.delete());
-
+    }
   });
+  connection.end();
 }

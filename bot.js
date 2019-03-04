@@ -137,7 +137,7 @@ client.on('message', message => {
     }
     catch (err) {
       if(message.content == config.prefix + "help") return;
-     //logger.debug('Error thrown when loading file: ' + err)
+     logger.debug('Error thrown when loading file: ' + err)
     }
 
 });

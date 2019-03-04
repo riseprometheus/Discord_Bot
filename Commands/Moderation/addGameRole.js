@@ -4,45 +4,60 @@ exports.run = (client, message,args) => {
     const fs = require('fs');
     var game = args.join(" ");
     //check for role already there
-    fs.readFile('./Commands/Moderation/gameRoles.txt', function read(err, data) {
-    if (err) {
+    var mysql      = require('mysql');
+    var mysqlConfig = require('../../sqlconfig.json')
 
-    }
-    var gameRoles = data.toString().split("\n");
-    var gamesProcessed = 0;
-    var roleExists = false;
-    gameRoles.forEach(function(gameString){
-      gamesProcessed++
-      if(roleExists == true) return;
-      //if(gameString == "") continue;
-      if(gameString.toLowerCase()==game.toLowerCase()){
-        message.channel.send({embed : {color: 0x4dd52b,
-            title: `Cannot Add Game Role`,
-            fields: [{
-              name: "Game Role Already Exists.",
-              value: `Game: ${game}`
+    var connection = mysql.createConnection({
+        host     : mysqlConfig.host,
+        user     : mysqlConfig.user,
+        password : mysqlConfig.password,
+        database : mysqlConfig.database
+      });
+
+      connection.connect();
+      var myQuery = `SELECT * FROM discord_sql_server.game_roles where server_id = ${message.guild.id}`
+      connection.query(myQuery, function (error, results, fields) {
+        if (error){
+          console.log(error);
+        }
+        else{
+          var gamesProcessed = 0;
+          var roleExists = false;
+          results.forEach(function(sqlRecord){
+            gamesProcessed++
+            if(roleExists == true) return;
+            //if(gameString == "") continue;
+            if(sqlRecord.game.toLowerCase()==game.toLowerCase()){
+              message.channel.send({embed : {color: 0xFF0000,
+                  title: `Cannot Add Game Role`,
+                  fields: [{
+                    name: "Game Role Already Exists.",
+                    value: `Game: ${game}`
+                  }
+                ],
+                timestamp: new Date(),
+                footer: {
+                  icon_url: client.user.avatarURL,
+                  text: "Brought to you by Prometheus"
+                }
+
+              }});
+              roleExists = true;
             }
-          ],
-          timestamp: new Date(),
-          footer: {
-            icon_url: client.user.avatarURL,
-            text: "Brought to you by Prometheus"
+
+          });
+          if(gamesProcessed == results.length && roleExists == false){
+              creatRole(client, message, game, connection);
           }
 
-        }});
-        roleExists = true;
-      }
-      if(gamesProcessed == gameRoles.length && roleExists == false){
-          creatRole(client, message, game, fs);
-      }
+        }
     });
-  });
   }
   return;
 
 }
 
-function creatRole(client, message, game, fs){
+function creatRole(client, message, game, connection){
   message.guild.createRole({
   name: game,
   color: 'BLUE',
@@ -51,21 +66,43 @@ function creatRole(client, message, game, fs){
   .then(role => console.log(`Created new game role with name ${role.name} and color ${role.color}`))
   .catch(console.error);
 
-  fs.appendFile('./Commands/Moderation/gameRoles.txt', `${game}\n`, function (err) {
-    if (err) throw err;
-    game = game.toUpperCase();
-    message.channel.send({embed : {color: 0x4dd52b,
-        title: `New Game Role Added`,
-        fields: [{
-          name: "Game Role:",
-          value: game
+  var myQuery = "INSERT INTO `discord_sql_server`.`game_roles` (`server_id`, `game`) VALUES (?, ?);";
+  var serverID = message.guild.id;
+  connection.query({sql:myQuery,
+                      timeout: 40000},[serverID,game], function (error, results, fields) {
+    if (error){
+     console.log(error);
+     message.channel.send({embed : {color: 0xFF0000,
+         title: `Administration`,
+         fields: [{
+           name: "Problem Gathering Data",
+           value: `Please try again later or contect your bot's admin.`
+         }
+       ],
+       timestamp: new Date(),
+       footer: {
+         icon_url: client.user.avatarURL,
+         text: "Brought to you by Prometheus"
+       }
+
+     }});
+    }
+    else{
+      game = game.toUpperCase();
+      message.channel.send({embed : {color: 0x4dd52b,
+          title: `New Game Role Added`,
+          fields: [{
+            name: "Game Role:",
+            value: game
+          }
+        ],
+        timestamp: new Date(),
+        footer: {
+          icon_url: client.user.avatarURL,
+          text: "Brought to you by Prometheus"
         }
-      ],
-      timestamp: new Date(),
-      footer: {
-        icon_url: client.user.avatarURL,
-        text: "Brought to you by Prometheus"
-      }
-    }});
-  });
+      }});
+    }
+    });
+    connection.end();
 }

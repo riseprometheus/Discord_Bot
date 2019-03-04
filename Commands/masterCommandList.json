@@ -188,5 +188,19 @@
   "active":true,
   "subfolder":"Music",
   "hidden":true
+},
+{
+  "command":"showAdmins",
+  "help":"Show list of users with admin privileges",
+  "active":true,
+  "subfolder":"Admin",
+  "hidden":true
+},
+{
+  "command":"addAdmin",
+  "help":"Add user to list of admins.",
+  "active":true,
+  "subfolder":"Admin",
+  "hidden":true
 }
 ]
