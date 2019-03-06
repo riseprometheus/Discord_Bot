@@ -77,13 +77,6 @@
   "hidden":false
 },
 {
-  "command":"killMe",
-  "help":"Modern humor is weird.",
-  "active":true,
-  "subfolder":"Misc",
-  "hidden":true
-},
-{
   "command":"time",
   "help":"A command that will display the current time relative to the bot.",
   "active":true,
