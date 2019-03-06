@@ -48,5 +48,4 @@ exports.run = (client, message,args) => {
   }});
 }
 });
-  connection.end();
  }

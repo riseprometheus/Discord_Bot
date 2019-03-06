@@ -104,7 +104,6 @@ function addAdminToDatabase(client, message, connection, userID, newAdminId){
      }});
    }
 });
- connection.end();
 }
 
 function checkIfAdminExists(client, message, connection, userID, newAdminId){

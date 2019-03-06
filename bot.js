@@ -49,13 +49,16 @@ catch (e) {
 }
 
 //checking for custom command list
-try{
-  var customCommandList = require('./Commands/Misc/customCommandsSave.json')
-}
-catch(err){
-  logger.info("Did not load custom commands file. Custom Commands will be disabled until this file is created.")
-  logger.debug(err)
-}
+var mysql      = require('mysql');
+var mysqlConfig = require('./sqlconfig.json')
+
+var connection = mysql.createConnection({
+  host     : mysqlConfig.host,
+  user     : mysqlConfig.user,
+  password : mysqlConfig.password,
+  database : mysqlConfig.database
+});
+
 
 var botStartUpInfo = {
   emojiMap:[
@@ -121,7 +124,7 @@ client.on('message', message => {
 
       if(checkIfHelp(command,message)){return;};
 
-      if(checkIfCustomCommand(command,message) == true){return;}
+      if(checkIfCustomCommand(connection,command,message) == true){return;}
 
       if(config.useSkynet && message.content.indexOf('skynetSetup') != -1){
         skynetClient.setupConfig(message);
@@ -392,16 +395,21 @@ function changeDefaultRole(){
     });
 }
 
-function checkIfCustomCommand(command_,message_){
+function checkIfCustomCommand(connection_,command_,message_){
     try  {
-      fs.readFile('./Commands/Misc/customCommandsSave.json', (err, data) => {
-      if (err) throw err;
-      let jsonArray = JSON.parse(data);
+      var myQuery = "SELECT * FROM discord_sql_server.server_custom_commands WHERE server_id = ?;";
+      var serverID = message_.guild.id;
+      connection.query({sql:myQuery,
+                          timeout: 40000},[serverID], function (error, results, fields) {
+        if (error){
+          console.log(error);
+          return;
+        }
 
-      jsonArray.forEach(commandEntry =>{
+      results.forEach(commandEntry =>{
 
         if(command_ == commandEntry.command.toLowerCase()){
-            message_.channel.send(commandEntry.response)
+            message_.channel.send(commandEntry.embed_link);
             return true;
         }
         });

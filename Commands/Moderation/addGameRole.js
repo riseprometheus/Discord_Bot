@@ -104,5 +104,4 @@ function creatRole(client, message, game, connection){
       }});
     }
     });
-    connection.end();
 }
