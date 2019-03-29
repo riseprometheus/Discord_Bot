@@ -17,6 +17,7 @@ exports.run = (client, message,args) => {
 
       var myQuery = "SELECT * FROM discord_sql_server.server_custom_commands WHERE server_id = ?;";
       var serverID = message.guild.id;
+      
       connection.query({sql:myQuery,
                           timeout: 40000},[serverID], function (error, results, fields) {
         if (error){
