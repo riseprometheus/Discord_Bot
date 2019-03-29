@@ -178,7 +178,7 @@
 {
   "command":"raidRole",
   "help":"Check to see number of raid activites cleared and add role.",
-  "active":true,
+  "active":false,
   "subfolder":"Destiny",
   "hidden":true
 },
