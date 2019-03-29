@@ -131,7 +131,7 @@ client.on('message', message => {
       var folder = checkIfActive(command,message);
 
       //logger.debug("Loaded folder: " + folder)
-      let commandFile = require(`./commands/${folder}/${command}.js`);
+      let commandFile = require(`./Commands/${folder}/${command}.js`);
 
       commandFile.run(client, message, args);
     }
