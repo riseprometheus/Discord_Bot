@@ -7,9 +7,6 @@ var auth = require('./auth.json');
 var config = require('./config.json')
 const fs = require('fs')
 const googleClient = require('./GoogleAPI/client.js')
-const skynet = require('./Skynet/skynet.js');
-var skynetClient = "";
-
 
 //info for winson
 const logger = winston.createLogger({
@@ -26,10 +23,6 @@ const logger = winston.createLogger({
   ]
 });
 
-if(config.useSkynet){
-  skynetClient = new skynet.skynetBase();
-
-}
 
 //Checking for master command list
 try{
@@ -59,6 +52,14 @@ var connection = mysql.createConnection({
   database : mysqlConfig.database
 });
 
+connection.on('error', function(err) {
+    if(err.code === 'PROTOCOL_CONNECTION_LOST') { // Connection to the MySQL server is usually
+      logger.debug(`Connection to DB has been lost at ${new Date()}`)
+      handleDisconnect();                         // lost due to either server restart, or a
+    } else {                                      // connnection idle timeout (the wait_timeout
+      console.log("SQL server connection lost. check if server is running.")                                 // server variable configures this)
+    }
+  });
 
 var botStartUpInfo = {
   emojiMap:[
@@ -70,7 +71,8 @@ var botStartUpInfo = {
   {key: 5,value:'Back'}],
   activities: [`on ${client.guilds.size} servers`,
                'ask ?help',
-               'Ping Prometheus when I die']
+               'Ping Prometheus when I die',
+               'try out ?showGameRoles']
 };
 
 var currentlyAttemptingLogin = false;
@@ -87,7 +89,7 @@ client.on('ready', () => {
   var botInfo = {counter: 0};
 
 
-  //playing ticker and check for new registration
+  //playing ticker
   var interval1 = setInterval(function(){
     botTickerLoop(botInfo);
   },15*1000)
@@ -126,11 +128,6 @@ client.on('message', message => {
 
       if(checkIfCustomCommand(connection,command,message) == true){return;}
 
-      if(config.useSkynet && message.content.indexOf('skynetSetup') != -1){
-        skynetClient.setupConfig(message);
-        return;
-      }
-
       var folder = checkIfActive(command,message);
 
       //logger.debug("Loaded folder: " + folder)
@@ -140,16 +137,9 @@ client.on('message', message => {
     }
     catch (err) {
       if(message.content == config.prefix + "help") return;
-     logger.debug('Error thrown when loading file: ' + err)
+     //logger.debug('Error thrown when loading file: ' + err)
     }
 
-});
-
-client.on('guildMemberAdd', member => {
-  if(config.useSkynet){
-    skynetClient.addNewUserRole(client,member);
-    return;
-  }
 });
 
 client.on('disconnect', function(){
@@ -188,17 +178,7 @@ client.on('resume',function(err){
   logger.debug("Successfully logged back in. Resuming duties.");
 })
 
-
-
-client.on('messageReactionAdd', (reaction, user) => {
-    parseReaction(reaction, user)
-
-  return;
-});
-
 client.login(auth.token);
-
-
 
 function checkIfHelp(command,message){
   if(command == "help"){
@@ -371,7 +351,7 @@ async function attemptLogin(client){
 
   if(!loggedIn)
   {
-    logger.info("Successive login attempts unsuccessful. Exiting bot @" + date.getHours() + ":" + date.getMinutes())
+    logger.info(`Successive login attempts unsuccessful. Exiting bot @ ${new Date()}`)
     process.exit()
   }
   return;
@@ -381,20 +361,6 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-
-
-function changeDefaultRole(){
-  var clanMembers = client.guilds.get(auth.home).members;
-
-  clanMembers.forEach(function(guildMember,guildMemberID){
-      if(guildMember.roles.has(auth.defaultRole))
-      {
-        guildMember.removeRole(auth.defaultRole);
-        guildMember.addRole(auth.friendRole);
-      }
-    });
-}
-
 function checkIfCustomCommand(connection_,command_,message_){
     try  {
       var myQuery = "SELECT * FROM discord_sql_server.server_custom_commands WHERE server_id = ?;";
@@ -402,8 +368,15 @@ function checkIfCustomCommand(connection_,command_,message_){
       connection.query({sql:myQuery,
                           timeout: 40000},[serverID], function (error, results, fields) {
         if (error){
+          if(error.code === 'PROTOCOL_ENQUEUE_AFTER_FATAL_ERROR' ){
+            handleDisconnect();
+            message_.reply("Please try you command again.")
+            return;
+          }
+          else{
           console.log(error);
           return;
+          }
         }
 
       results.forEach(commandEntry =>{
@@ -419,75 +392,6 @@ function checkIfCustomCommand(connection_,command_,message_){
       logger.debug("Problem loading custom command, error: " + err)
       return false;
     }
-}
-
-
-async function pingNewProspect(){
-
-  if(client.guilds.get(auth.home).channels.get(
-  auth.prospectiveClanMemberChannel).lastMessageID != null)
-  {
-
-    var lastMessage = await client.guilds.get(auth.home).channels.get(
-      auth.prospectiveClanMemberChannel).fetchMessage(client.guilds.get(auth.home).channels.get(
-        auth.prospectiveClanMemberChannel).lastMessageID);
-
-        lastMessage.delete();
-  }
-
-    client.guilds.get(auth.home).channels.get(auth.prospectiveClanMemberChannel).send(
-      `<@&${auth.onTheProcessor}> please read this page for more info about joining our clan.` );
-
-    return;
-}
-
-function parseReaction(reaction_,user_){
-  if(user_.id == client.user.id) return;
-  if(reaction_.message.author.id !=client.user.id) return;
-  if(checkForMatchingChannel(reaction_.message.channel.id,auth.setupChannel))
-  {
-    addUserRoleViaReaction(reaction_,user_);
-  }
-}
-
-function addUserRoleViaReaction(reaction_,user_){
-  //map emoji id to role
-  var roleMap = new Map([
-  ["377203230653939713",'350884452995694594'],//warlock
-  ["377203229873930251",'350883091725811742'],//hunter
-  ["377207705594757123",'373629204769669121'],//titan
-  ["⚠",'479740347610562560'],//spoiler
-  ["🔹",'351126070889807872'],//friend
-  ["🔰",'377919983650471937']]);//prospect
-
-  var roleNameMap = new Map([
-  ["377203230653939713",'warlock'],//warlock
-  ["377203229873930251",'hunter'],//hunter
-  ["377207705594757123",'titan'],//titan
-  ["🔹",'AMD Processor'],//friend
-  ["🔰",'On The Processor']]);
-
-  var member = client.guilds.get(auth.home).members.get(user_.id);
-  var roleID = roleMap.get(reaction_.emoji.id);
-  if (typeof roleID != 'undefined'){
-    member.addRole(roleMap.get(reaction_.emoji.id)).then(user_.send(`Added the ${roleNameMap.get(reaction_.emoji.id)} role.`)).then(removeNewUserRole(member)).catch();
-    return;
-  }
-  roleID = roleMap.get(reaction_.emoji.name);
-  if (typeof roleID != 'undefined'){
-    member.addRole(roleMap.get(reaction_.emoji.name)).then(user_.send(`Added the ${roleNameMap.get(reaction_.emoji.name)} role.`)).then(removeNewUserRole(member)).catch();
-    return;
-  }
-}
-
-function removeNewUserRole(member_){
-  if(member_.roles.has(auth.defaultRole)){
-    member_.removeRole(auth.defaultRole);
-  }
-}
-
-function checkForMatchingChannel(channelID1,channelID2){
-  return channelID1==channelID2;
 }
 
 function botTickerLoop(botInfo){
@@ -506,29 +410,29 @@ function botTickerLoop(botInfo){
   }
 }
 
-function getRegistrationArray(){
-  let registration = require("./GoogleAPI/Sheets/registration.js")
-  return new Promise(function(resolve,reject){
-    registration.getOutstandingRegistrations((regArray)=>{
-      resolve(regArray);})
+function handleDisconnect() {
+  connection = mysql.createConnection({
+    host     : mysqlConfig.host,
+    user     : mysqlConfig.user,
+    password : mysqlConfig.password,
+    database : mysqlConfig.database
   });
-}
 
-async function checkForNewRegistration(){
-  var regArray =  await getRegistrationArray();
-  regArray.forEach(function(element) {
-    if(element[4]!="Yes"){
-    client.guilds.get(auth.home).channels.get(auth.modChannel).send({embed : {color: 0x4dd52b,
-        description: `<@&${auth.modRole}> A New user would like to join the clan!
-        \n **Discord Name**: ${element[1]}
-        \n **Battle.net Name**: ${element[2]}
-        \n **Found Us From**: ${element[3]}`,
-        timestamp: new Date(),
-        footer: {
-          icon_url: client.user.avatarURL,
-          text: "Brought to you by Prometheus"
-        } }});
-      }
+  connection.connect(function(err) {
+    if(err) {
+      console.log('error when connecting to db:', err);
+      setTimeout(handleDisconnect, 2000);
+    }
+    logger.debug("MySql connection resumed.")
   });
+
+  connection.on('error', function(err) {
+      if(err.code === 'PROTOCOL_CONNECTION_LOST') { // Connection to the MySQL server is usually
+        logger.debug(`Connection to DB has been lost at ${new Date()}`)
+        handleDisconnect();                         // lost due to either server restart, or a
+      } else {                                      // connnection idle timeout (the wait_timeout
+        console.log("Couldn't reconnect to mysql server.")                                 // server variable configures this)
+      }
+    });
 
 }
