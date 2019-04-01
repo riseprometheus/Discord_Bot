@@ -395,16 +395,9 @@ function checkIfCustomCommand(connection_,command_,message_){
         }
         });
       });
-      connection.end();
     }
     catch(err){
       logger.debug("Problem loading custom command, error: " + err);
-      connection.end(function(err) {
-        if(err) {
-          console.log('error when disconnecting from db:', err);
-          setTimeout(handleDisconnect, 2000);
-        }
-      });
       return false;
     }
 }
