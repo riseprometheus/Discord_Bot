@@ -61,6 +61,13 @@ connection.on('error', function(err) {
     }
   });
 
+  connection.connect(function(err) {
+    if(err) {
+      console.log('error when connecting to db:', err);
+      setTimeout(handleDisconnect, 2000);
+    }
+  });
+
 var botStartUpInfo = {
   emojiMap:[
   {key: 0,value:'Moderation'},
@@ -364,13 +371,6 @@ function sleep(ms) {
 function checkIfCustomCommand(connection_,command_,message_){
     try  {
       var myQuery = "SELECT * FROM discord_sql_server.server_custom_commands WHERE server_id = ?;";
-
-      connection.connect(function(err) {
-        if(err) {
-          console.log('error when connecting to db:', err);
-          setTimeout(handleDisconnect, 2000);
-        }
-      });
 
       var serverID = message_.guild.id;
       connection.query({sql:myQuery,
