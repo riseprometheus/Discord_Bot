@@ -13,7 +13,6 @@ exports.run = (client, message,args) => {
   connection.connect(function(err) {
     if(err) {
       console.log('error when connecting to db:', err);
-      setTimeout(handleDisconnect, 2000);
     }
   });
   var myQuery = `SELECT * FROM discord_sql_server.bot_admins`
@@ -58,7 +57,6 @@ exports.run = (client, message,args) => {
 connection.end(function(err) {
   if(err) {
     console.log('error when disconnecting from db:', err);
-    setTimeout(handleDisconnect, 2000);
   }
 });
  }

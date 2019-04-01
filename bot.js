@@ -370,7 +370,6 @@ function checkIfCustomCommand(connection_,command_,message_){
           console.log('error when connecting to db:', err);
           setTimeout(handleDisconnect, 2000);
         }
-        logger.debug("MySql connection resumed.")
       });
 
       var serverID = message_.guild.id;
@@ -405,7 +404,6 @@ function checkIfCustomCommand(connection_,command_,message_){
           console.log('error when disconnecting from db:', err);
           setTimeout(handleDisconnect, 2000);
         }
-        logger.debug("MySql connection resumed.")
       });
       return false;
     }
@@ -438,15 +436,13 @@ function handleDisconnect() {
   connection.connect(function(err) {
     if(err) {
       console.log('error when connecting to db:', err);
-      setTimeout(handleDisconnect, 2000);
     }
-    logger.debug("MySql connection resumed.")
   });
 
   connection.on('error', function(err) {
       if(err.code === 'PROTOCOL_CONNECTION_LOST') { // Connection to the MySQL server is usually
         logger.debug(`Connection to DB has been lost at ${new Date()}`)
-        handleDisconnect();                         // lost due to either server restart, or a
+                        // lost due to either server restart, or a
       } else {                                      // connnection idle timeout (the wait_timeout
         console.log("Couldn't reconnect to mysql server.")                                 // server variable configures this)
       }
