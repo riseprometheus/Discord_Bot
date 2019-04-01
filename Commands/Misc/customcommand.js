@@ -18,7 +18,6 @@ exports.run = (client, message,args) => {
           console.log('error when connecting to db:', err);
           setTimeout(handleDisconnect, 2000);
         }
-        logger.debug("MySql connection resumed.")
       });
 
       var myQuery = "SELECT * FROM discord_sql_server.server_custom_commands WHERE server_id = ?;";
@@ -33,7 +32,6 @@ exports.run = (client, message,args) => {
               console.log('error when disconnecting from db:', err);
               setTimeout(handleDisconnect, 2000);
             }
-            logger.debug("MySql connection resumed.")
           });
           return;
         }
@@ -52,7 +50,6 @@ exports.run = (client, message,args) => {
               console.log('error when disconnecting from db:', err);
               setTimeout(handleDisconnect, 2000);
             }
-            logger.debug("MySql connection resumed.")
           });
           return;
         }
@@ -77,7 +74,6 @@ exports.run = (client, message,args) => {
                       console.log('error when disconnecting from db:', err);
                       setTimeout(handleDisconnect, 2000);
                     }
-                    logger.debug("MySql connection resumed.")
                   });
                   return;
                 }
@@ -89,7 +85,6 @@ exports.run = (client, message,args) => {
                     console.log('error when disconnecting from db:', err);
                     setTimeout(handleDisconnect, 2000);
                   }
-                  logger.debug("MySql connection resumed.")
                 });
                 return;
 
@@ -116,7 +111,6 @@ exports.run = (client, message,args) => {
                 console.log('error when disconnecting from db:', err);
                 setTimeout(handleDisconnect, 2000);
               }
-              logger.debug("MySql connection resumed.")
             });
             return;
           }
@@ -132,7 +126,6 @@ exports.run = (client, message,args) => {
           console.log('error when disconnecting from db:', err);
           setTimeout(handleDisconnect, 2000);
         }
-        logger.debug("MySql connection resumed.")
       });
       return;
    }

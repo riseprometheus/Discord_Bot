@@ -15,7 +15,6 @@ exports.run = (client, message,args) => {
       console.log('error when connecting to db:', err);
       setTimeout(handleDisconnect, 2000);
     }
-    logger.debug("MySql connection resumed.")
   });
 
   var newAdminId = args[0];
@@ -55,7 +54,6 @@ function checkForAdminUser(client, message, connection, userID, newAdminId){
           console.log('error when disconnecting from db:', err);
           setTimeout(handleDisconnect, 2000);
         }
-        logger.debug("MySql connection resumed.")
       });
       return;
     }else{
@@ -78,7 +76,6 @@ function checkForAdminUser(client, message, connection, userID, newAdminId){
           console.log('error when disconnecting from db:', err);
           setTimeout(handleDisconnect, 2000);
         }
-        logger.debug("MySql connection resumed.")
       });
       return ;
     }

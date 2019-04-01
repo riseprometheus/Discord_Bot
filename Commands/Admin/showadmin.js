@@ -15,7 +15,6 @@ exports.run = (client, message,args) => {
       console.log('error when connecting to db:', err);
       setTimeout(handleDisconnect, 2000);
     }
-    logger.debug("MySql connection resumed.")
   });
   var myQuery = `SELECT * FROM discord_sql_server.bot_admins`
 
@@ -61,6 +60,5 @@ connection.end(function(err) {
     console.log('error when disconnecting from db:', err);
     setTimeout(handleDisconnect, 2000);
   }
-  logger.debug("MySql connection resumed.")
 });
  }
