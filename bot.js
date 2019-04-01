@@ -45,29 +45,6 @@ catch (e) {
 var mysql      = require('mysql');
 var mysqlConfig = require('./sqlconfig.json')
 
-var connection = mysql.createConnection({
-  host     : mysqlConfig.host,
-  user     : mysqlConfig.user,
-  password : mysqlConfig.password,
-  database : mysqlConfig.database
-});
-
-connection.on('error', function(err) {
-    if(err.code === 'PROTOCOL_CONNECTION_LOST') { // Connection to the MySQL server is usually
-      logger.debug(`Connection to DB has been lost at ${new Date()}`)
-      handleDisconnect();                         // lost due to either server restart, or a
-    } else {                                      // connnection idle timeout (the wait_timeout
-      console.log("SQL server connection lost. check if server is running.")                                 // server variable configures this)
-    }
-  });
-
-  connection.connect(function(err) {
-    if(err) {
-      console.log('error when connecting to db:', err);
-      setTimeout(handleDisconnect, 2000);
-    }
-  });
-
 var botStartUpInfo = {
   emojiMap:[
   {key: 0,value:'Moderation'},
@@ -133,7 +110,7 @@ client.on('message', message => {
 
       if(checkIfHelp(command,message)){return;};
 
-      if(checkIfCustomCommand(connection,command,message) == true){return;}
+      if(checkIfCustomCommand(command,message) == true){return;}
 
       var folder = checkIfActive(command,message);
 
@@ -144,7 +121,7 @@ client.on('message', message => {
     }
     catch (err) {
       if(message.content == config.prefix + "help") return;
-     //logger.debug('Error thrown when loading file: ' + err)
+     logger.debug('Error thrown when loading file: ' + err)
     }
 
 });
@@ -368,16 +345,34 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function checkIfCustomCommand(connection_,command_,message_){
+function checkIfCustomCommand(command_,message_){
     try  {
       var myQuery = "SELECT * FROM discord_sql_server.server_custom_commands WHERE server_id = ?;";
+
+      var connection = mysql.createConnection({
+        host     : mysqlConfig.host,
+        user     : mysqlConfig.user,
+        password : mysqlConfig.password,
+        database : mysqlConfig.database
+      });
+
+      connection.connect(function(err) {
+        if(err) {
+          console.log('error when connecting to db:', err);
+        }
+      });
 
       var serverID = message_.guild.id;
       connection.query({sql:myQuery,
                           timeout: 40000},[serverID], function (error, results, fields) {
+        connection.end(function(err) {
+          if(err) {
+            console.log('error when disconnecting from db:', err);
+          }
+        });
+
         if (error){
           if(error.code === 'PROTOCOL_ENQUEUE_AFTER_FATAL_ERROR' ){
-            handleDisconnect();
             message_.reply("Please try you command again.")
             return;
           }
@@ -395,6 +390,7 @@ function checkIfCustomCommand(connection_,command_,message_){
         }
         });
       });
+
     }
     catch(err){
       logger.debug("Problem loading custom command, error: " + err);
