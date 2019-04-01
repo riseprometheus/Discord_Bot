@@ -10,7 +10,14 @@ exports.run = (client, message,args) => {
     database : mysqlConfig.database
   });
 
-  connection.connect();
+  connection.connect(function(err) {
+    if(err) {
+      console.log('error when connecting to db:', err);
+      setTimeout(handleDisconnect, 2000);
+    }
+    logger.debug("MySql connection resumed.")
+  });
+
   var newAdminId = args[0];
 
   checkForAdminUser(client, message, connection, message.author.id, newAdminId );
@@ -43,6 +50,7 @@ function checkForAdminUser(client, message, connection, userID, newAdminId){
  else{
     if(results.length > 0){
       checkIfAdminExists(client, message, connection, userID, newAdminId);
+      connection.close()
       return;
     }else{
       message.channel.send({embed : {color: 0xFF0000,
@@ -59,6 +67,13 @@ function checkForAdminUser(client, message, connection, userID, newAdminId){
         }
 
       }});
+      connection.close(function(err) {
+        if(err) {
+          console.log('error when disconnecting from db:', err);
+          setTimeout(handleDisconnect, 2000);
+        }
+        logger.debug("MySql connection resumed.")
+      });
       return ;
     }
 

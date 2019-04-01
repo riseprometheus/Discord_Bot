@@ -364,6 +364,15 @@ function sleep(ms) {
 function checkIfCustomCommand(connection_,command_,message_){
     try  {
       var myQuery = "SELECT * FROM discord_sql_server.server_custom_commands WHERE server_id = ?;";
+
+      connection.connect(function(err) {
+        if(err) {
+          console.log('error when connecting to db:', err);
+          setTimeout(handleDisconnect, 2000);
+        }
+        logger.debug("MySql connection resumed.")
+      });
+
       var serverID = message_.guild.id;
       connection.query({sql:myQuery,
                           timeout: 40000},[serverID], function (error, results, fields) {
@@ -386,10 +395,12 @@ function checkIfCustomCommand(connection_,command_,message_){
             return true;
         }
         });
-      })
+      });
+      connection.close();
     }
     catch(err){
-      logger.debug("Problem loading custom command, error: " + err)
+      logger.debug("Problem loading custom command, error: " + err);
+      connection.close();
       return false;
     }
 }

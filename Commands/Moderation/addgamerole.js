@@ -14,7 +14,13 @@ exports.run = (client, message,args) => {
         database : mysqlConfig.database
       });
 
-      connection.connect();
+      connection.connect(function(err) {
+        if(err) {
+          console.log('error when connecting to db:', err);
+          setTimeout(handleDisconnect, 2000);
+        }
+        logger.debug("MySql connection resumed.")
+      });
       var myQuery = `SELECT * FROM discord_sql_server.game_roles where server_id = ${message.guild.id}`
       connection.query(myQuery, function (error, results, fields) {
         if (error){
@@ -53,6 +59,13 @@ exports.run = (client, message,args) => {
         }
     });
   }
+  connection.close(function(err) {
+    if(err) {
+      console.log('error when disconnecting from db:', err);
+      setTimeout(handleDisconnect, 2000);
+    }
+    logger.debug("MySql connection resumed.")
+  });
   return;
 
 }

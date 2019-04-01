@@ -13,16 +13,28 @@ exports.run = (client, message,args) => {
         database : mysqlConfig.database
       });
 
-      connection.connect();
+      connection.connect(function(err) {
+        if(err) {
+          console.log('error when connecting to db:', err);
+          setTimeout(handleDisconnect, 2000);
+        }
+        logger.debug("MySql connection resumed.")
+      });
 
       var myQuery = "SELECT * FROM discord_sql_server.server_custom_commands WHERE server_id = ?;";
       var serverID = message.guild.id;
-      
+
       connection.query({sql:myQuery,
                           timeout: 40000},[serverID], function (error, results, fields) {
         if (error){
           console.log(error);
-
+          connection.close(function(err) {
+            if(err) {
+              console.log('error when disconnecting from db:', err);
+              setTimeout(handleDisconnect, 2000);
+            }
+            logger.debug("MySql connection resumed.")
+          });
           return;
         }
         if(args.length == 0)
@@ -35,9 +47,16 @@ exports.run = (client, message,args) => {
           message.channel.send(
             {embed : {color: 0x4dd52b,
                 description:"Current list of custom commands:\n " + customCommandListString}});
-
+          connection.close(function(err) {
+            if(err) {
+              console.log('error when disconnecting from db:', err);
+              setTimeout(handleDisconnect, 2000);
+            }
+            logger.debug("MySql connection resumed.")
+          });
           return;
         }
+
         if(args[0].toLowerCase() =="remove")
         {
           for(var index = 0; index < results.length; index++ )
@@ -53,19 +72,31 @@ exports.run = (client, message,args) => {
                   message.channel.send(
                     {embed : {color: 0xFF0000,
                         description: "Custom command: **" + args[1] + "** was not removed due to bot error. Please try again later."}});
-
+                  connection.close(function(err) {
+                    if(err) {
+                      console.log('error when disconnecting from db:', err);
+                      setTimeout(handleDisconnect, 2000);
+                    }
+                    logger.debug("MySql connection resumed.")
+                  });
                   return;
                 }
                 message.channel.send(
                   {embed : {color: 0x4dd52b,
                       description: "Custom command: **" + args[1] + "** was removed."}});
-
+                connection.close(function(err) {
+                  if(err) {
+                    console.log('error when disconnecting from db:', err);
+                    setTimeout(handleDisconnect, 2000);
+                  }
+                  logger.debug("MySql connection resumed.")
+                });
                 return;
 
             });
           }
         }
-        return;
+          return;
         }
 
         var commandInput = args[0]
@@ -80,7 +111,13 @@ exports.run = (client, message,args) => {
             message.channel.send(
               {embed : {color: 0xFF0000,
                   description: "Custom command: **" + args[0] + "** was not added due to bot error. Please try again later."}});
-
+            connection.close(function(err) {
+              if(err) {
+                console.log('error when disconnecting from db:', err);
+                setTimeout(handleDisconnect, 2000);
+              }
+              logger.debug("MySql connection resumed.")
+            });
             return;
           }
           message.channel.send(
@@ -90,7 +127,13 @@ exports.run = (client, message,args) => {
       });
 
       });
-
+      connection.close(function(err) {
+        if(err) {
+          console.log('error when disconnecting from db:', err);
+          setTimeout(handleDisconnect, 2000);
+        }
+        logger.debug("MySql connection resumed.")
+      });
       return;
    }
    message.reply("You do not have the mod role required to use this function.");
