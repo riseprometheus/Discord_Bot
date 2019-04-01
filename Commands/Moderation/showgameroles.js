@@ -62,7 +62,7 @@ exports.run = (client, message,args) => {
 
         }})
       }
-      connection.close(function(err) {
+      connection.end(function(err) {
         if(err) {
           console.log('error when disconnecting from db:', err);
           setTimeout(handleDisconnect, 2000);

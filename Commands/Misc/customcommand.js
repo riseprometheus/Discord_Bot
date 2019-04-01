@@ -28,7 +28,7 @@ exports.run = (client, message,args) => {
                           timeout: 40000},[serverID], function (error, results, fields) {
         if (error){
           console.log(error);
-          connection.close(function(err) {
+          connection.end(function(err) {
             if(err) {
               console.log('error when disconnecting from db:', err);
               setTimeout(handleDisconnect, 2000);
@@ -47,7 +47,7 @@ exports.run = (client, message,args) => {
           message.channel.send(
             {embed : {color: 0x4dd52b,
                 description:"Current list of custom commands:\n " + customCommandListString}});
-          connection.close(function(err) {
+          connection.end(function(err) {
             if(err) {
               console.log('error when disconnecting from db:', err);
               setTimeout(handleDisconnect, 2000);
@@ -72,7 +72,7 @@ exports.run = (client, message,args) => {
                   message.channel.send(
                     {embed : {color: 0xFF0000,
                         description: "Custom command: **" + args[1] + "** was not removed due to bot error. Please try again later."}});
-                  connection.close(function(err) {
+                  connection.end(function(err) {
                     if(err) {
                       console.log('error when disconnecting from db:', err);
                       setTimeout(handleDisconnect, 2000);
@@ -84,7 +84,7 @@ exports.run = (client, message,args) => {
                 message.channel.send(
                   {embed : {color: 0x4dd52b,
                       description: "Custom command: **" + args[1] + "** was removed."}});
-                connection.close(function(err) {
+                connection.end(function(err) {
                   if(err) {
                     console.log('error when disconnecting from db:', err);
                     setTimeout(handleDisconnect, 2000);
@@ -111,7 +111,7 @@ exports.run = (client, message,args) => {
             message.channel.send(
               {embed : {color: 0xFF0000,
                   description: "Custom command: **" + args[0] + "** was not added due to bot error. Please try again later."}});
-            connection.close(function(err) {
+            connection.end(function(err) {
               if(err) {
                 console.log('error when disconnecting from db:', err);
                 setTimeout(handleDisconnect, 2000);
@@ -127,7 +127,7 @@ exports.run = (client, message,args) => {
       });
 
       });
-      connection.close(function(err) {
+      connection.end(function(err) {
         if(err) {
           console.log('error when disconnecting from db:', err);
           setTimeout(handleDisconnect, 2000);

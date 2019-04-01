@@ -50,7 +50,13 @@ function checkForAdminUser(client, message, connection, userID, newAdminId){
  else{
     if(results.length > 0){
       checkIfAdminExists(client, message, connection, userID, newAdminId);
-      connection.close()
+      connection.end(function(err) {
+        if(err) {
+          console.log('error when disconnecting from db:', err);
+          setTimeout(handleDisconnect, 2000);
+        }
+        logger.debug("MySql connection resumed.")
+      });
       return;
     }else{
       message.channel.send({embed : {color: 0xFF0000,
@@ -67,7 +73,7 @@ function checkForAdminUser(client, message, connection, userID, newAdminId){
         }
 
       }});
-      connection.close(function(err) {
+      connection.end(function(err) {
         if(err) {
           console.log('error when disconnecting from db:', err);
           setTimeout(handleDisconnect, 2000);

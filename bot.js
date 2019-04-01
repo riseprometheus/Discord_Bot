@@ -396,11 +396,17 @@ function checkIfCustomCommand(connection_,command_,message_){
         }
         });
       });
-      connection.close();
+      connection.end();
     }
     catch(err){
       logger.debug("Problem loading custom command, error: " + err);
-      connection.close();
+      connection.end(function(err) {
+        if(err) {
+          console.log('error when disconnecting from db:', err);
+          setTimeout(handleDisconnect, 2000);
+        }
+        logger.debug("MySql connection resumed.")
+      });
       return false;
     }
 }
