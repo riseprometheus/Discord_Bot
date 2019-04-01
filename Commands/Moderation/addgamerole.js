@@ -47,6 +47,11 @@ exports.run = (client, message,args) => {
 
               }});
               roleExists = true;
+              connection.end(function(err) {
+                if(err) {
+                  console.log('error when disconnecting from db:', err);
+                }
+              });
             }
 
           });
@@ -54,14 +59,10 @@ exports.run = (client, message,args) => {
               creatRole(client, message, game, connection);
           }
 
+
         }
     });
   }
-  connection.end(function(err) {
-    if(err) {
-      console.log('error when disconnecting from db:', err);
-    }
-  });
   return;
 
 }
@@ -113,4 +114,5 @@ function creatRole(client, message, game, connection){
       }});
     }
     });
+
 }
