@@ -393,7 +393,7 @@ function checkIfCustomCommand(command_,message_){
 
     }
     catch(err){
-      logger.debug("Problem loading custom command, error: " + err);
+      //logger.debug("Problem loading custom command, error: " + err);
       return false;
     }
 }
