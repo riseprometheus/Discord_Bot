@@ -59,7 +59,7 @@ function addGameRoleToUser(client,message,game, roleExists){
   if(roleExists){
     var userName = message.member.nickname;
 
-    if(typeof userName === 'undefined' && userName === null){
+    if(userName === null){
       userName = message.member.user.username;
     }
 
