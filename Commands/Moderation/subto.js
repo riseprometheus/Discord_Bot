@@ -60,7 +60,7 @@ function addGameRoleToUser(client,message,game, roleExists){
     var userName = message.member.nickname;
 
     if(typeof userName === 'undefined' && userName === null){
-      username = message.member.user.username;
+      userName = message.member.user.username;
     }
 
   message.channel.guild.roles.forEach(function(role,roleID){
@@ -69,7 +69,7 @@ function addGameRoleToUser(client,message,game, roleExists){
         message.channel.send({embed : {color: 0xFF0000,
             title: `Game Role Not Added`,
             fields: [{
-              name: `Attention: ${username}`,
+              name: `Attention: ${userName}`,
               value: `You already have the role: ${game}`
             }
           ],
@@ -88,7 +88,7 @@ function addGameRoleToUser(client,message,game, roleExists){
           message.channel.send({embed : {color: 0x4dd52b,
               title: `Game Role Added`,
               fields: [{
-                name: `Role added to ${username}`,
+                name: `Role added to ${userName}`,
                 value: `Game: ${game}`
               }
             ],
@@ -109,7 +109,7 @@ function addGameRoleToUser(client,message,game, roleExists){
       message.channel.send({embed : {color: 0xFF0000,
           title: `Game Role Not Added`,
           fields: [{
-            name: `Attention: ${username}`,
+            name: `Attention: ${userName}`,
             value: `This game role is not setup on this server: ${game}`
           }
         ],
