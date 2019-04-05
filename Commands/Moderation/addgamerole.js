@@ -94,6 +94,10 @@ function creatRole(client, message, game, connection){
          icon_url: client.user.avatarURL,
          text: "Brought to you by Prometheus"
        }
+       connection.end(function(err) {
+         if(err) {
+           console.log('error when disconnecting from db:', err);
+         }
 
      }});
     }
@@ -112,6 +116,10 @@ function creatRole(client, message, game, connection){
           text: "Brought to you by Prometheus"
         }
       }});
+      connection.end(function(err) {
+        if(err) {
+          console.log('error when disconnecting from db:', err);
+        }
     }
     });
 
