@@ -1,6 +1,6 @@
 exports.run = (client, message,args) => {
   var channelID = message.member.voiceChannelID;
-  if(channelID!== 'undefined'){
+  if(channelID === 'undefined'){
     message.reply("Please be in a voice channel to set it's user limit.");
     return;
   }
