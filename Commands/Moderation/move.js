@@ -6,7 +6,8 @@ exports.run = (client, message,args) => {
   }
 
   console.log(`${channelID}`);
-  message.mentions.users.first().setVoiceChannel(message.member.voiceChannelID);
+  var collectionKey = message.mentions.users.firstKey();
+  message.mentions.users[collectionKey].setVoiceChannel(message.member.voiceChannelID);
 
   return;
 }
