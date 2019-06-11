@@ -14,6 +14,13 @@
   "hidden":false
 },
 {
+  "command":"move",
+  "help":"Move user to voice channel. Must be in voice channel to change.",
+  "active":true,
+  "subfolder":"Moderation",
+  "hidden":false
+},
+{
 "command":"addGameRole",
 "help":"Add game role for mentioning groups.",
 "active":true,
