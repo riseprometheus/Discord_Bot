@@ -7,7 +7,7 @@ exports.run = (client, message,args) => {
 
   var collectionKey = message.mentions.members.firstKey();
   console.log(message.mentions.members.get(collectionKey).voiceChannelID)
-  if(message.mentions.members.get(collectionKey).voiceChannelID === null){
+  if(typeof message.mentions.members.get(collectionKey).voiceChannelID === 'undefined'){
     message.reply("Please make sure target user and yourself are in a voice channel.");
     return;
   }
