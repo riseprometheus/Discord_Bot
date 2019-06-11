@@ -5,8 +5,8 @@ exports.run = (client, message,args) => {
     return;
   }
 
-  var collectionKey = message.mentions.users.firstKey();
-  console.log(message.mentions.users.get(collectionKey)).setVoiceChannel(channelID);
+  var collectionKey = message.mentions.members.firstKey();
+  console.log(message.mentions.members.get(collectionKey)).setVoiceChannel(channelID);
 
   return;
 }
