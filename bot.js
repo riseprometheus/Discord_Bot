@@ -181,7 +181,7 @@ client.on('guildMemberAdd', member => {
           console.log('error when disconnecting from db:', err);
         }
       });
-
+      console.log(results.size);
       if (error){
         if(error.code === 'PROTOCOL_ENQUEUE_AFTER_FATAL_ERROR' ){
           message_.reply("Please try you command again.")
@@ -194,11 +194,6 @@ client.on('guildMemberAdd', member => {
       }
 
     results.forEach(newMemberRole =>{
-
-      if(command_ == commandEntry.command.toLowerCase()){
-          message_.channel.send(commandEntry.embed_link);
-          return true;
-      }
           member.addRole(newMemberRole.role_snowflake).catch().then(console.log(`Added role ${newMemberRole.role_name} to ${member.user.username} on ${newMemberRole.server_name}`))
       });
 
