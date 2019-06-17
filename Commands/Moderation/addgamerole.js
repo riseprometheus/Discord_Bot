@@ -19,7 +19,8 @@ exports.run = (client, message,args) => {
           console.log('error when connecting to db:', err);
         }
       });
-      var myQuery = `SELECT * FROM discord_sql_server.game_roles where server_id = ${message.guild.id}`
+      var myQuery = `SELECT * FROM discord_sql_server.game_roles where server_id = ${message.guild.id}`;
+
       connection.query(myQuery, function (error, results, fields) {
         if (error){
           console.log(error);
@@ -94,13 +95,13 @@ function creatRole(client, message, game, connection){
          icon_url: client.user.avatarURL,
          text: "Brought to you by Prometheus"
        }
-       connection.end(function(err) {
-         if(err) {
-           console.log('error when disconnecting from db:', err);
-         }
-
-     });
    }});
+   connection.end(function(err) {
+     if(err) {
+       console.log('error when disconnecting from db:', err);
+     }
+
+ });
   }
     else{
       game = game.toUpperCase();
