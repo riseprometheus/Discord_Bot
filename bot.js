@@ -173,7 +173,7 @@ client.on('guildMemberAdd', member => {
       }
     });
 
-    var serverID = message_.guild.id;
+    var serverID = member.guild.id;
     connection.query({sql:myQuery,
                         timeout: 40000},[serverID], function (error, results, fields) {
       connection.end(function(err) {
@@ -201,7 +201,7 @@ client.on('guildMemberAdd', member => {
 
   }
   catch(err){
-    //logger.debug("Problem loading custom command, error: " + err);
+
     return false;
   }
 });
