@@ -99,8 +99,9 @@ function creatRole(client, message, game, connection){
            console.log('error when disconnecting from db:', err);
          }
 
-     }});
-    }
+     });
+   }});
+  }
     else{
       game = game.toUpperCase();
       message.channel.send({embed : {color: 0x4dd52b,
@@ -120,7 +121,8 @@ function creatRole(client, message, game, connection){
         if(err) {
           console.log('error when disconnecting from db:', err);
         }
-    }
     });
+  }
+  });
 
 }

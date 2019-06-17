@@ -162,6 +162,55 @@ client.on('resume',function(err){
   logger.debug("Successfully logged back in. Resuming duties.");
 })
 
+client.on('guildMemberAdd', member => {
+  try  {
+    var myQuery = "SELECT * FROM discord_sql_server.new_member_roles WHERE server_snowflake = ?;";
+    var connection = createSQLConnection();
+
+    connection.connect(function(err) {
+      if(err) {
+        console.log('error when connecting to db:', err);
+      }
+    });
+
+    var serverID = message_.guild.id;
+    connection.query({sql:myQuery,
+                        timeout: 40000},[serverID], function (error, results, fields) {
+      connection.end(function(err) {
+        if(err) {
+          console.log('error when disconnecting from db:', err);
+        }
+      });
+
+      if (error){
+        if(error.code === 'PROTOCOL_ENQUEUE_AFTER_FATAL_ERROR' ){
+          message_.reply("Please try you command again.")
+          return;
+        }
+        else{
+        console.log(error);
+        return;
+        }
+      }
+
+    results.forEach(newMemberRole =>{
+
+      if(command_ == commandEntry.command.toLowerCase()){
+          message_.channel.send(commandEntry.embed_link);
+          return true;
+      }
+          member.addRole(newMemberRole.role_snowflake).catch().then(console.log(`Added role ${newMemberRole.role_name} to ${member.user.username} on ${newMemberRole.server_name}`))
+      });
+
+    });
+
+  }
+  catch(err){
+    //logger.debug("Problem loading custom command, error: " + err);
+    return false;
+  }
+});
+
 client.login(auth.token);
 
 function checkIfHelp(command,message){
@@ -437,4 +486,13 @@ function handleDisconnect() {
       }
     });
 
+}
+
+function createSQLConnection(){
+  return mysql.createConnection({
+    host     : mysqlConfig.host,
+    user     : mysqlConfig.user,
+    password : mysqlConfig.password,
+    database : mysqlConfig.database
+  });
 }
