@@ -94,16 +94,9 @@ exports.run = (client, message,args) => {
           connection.end();
           return;
 
-      });
+        });
 
       });
-      connection.end(function(err) {
-        if(err) {
-          console.log('error when disconnecting from db:', err);
-
-        }
-      });
-      return;
    }
    message.reply("You do not have the mod role required to use this function.");
    return;
