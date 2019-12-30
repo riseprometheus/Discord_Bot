@@ -97,6 +97,7 @@ exports.run = (client, message,args) => {
         });
 
       });
+      return;
    }
    message.reply("You do not have the mod role required to use this function.");
    return;
