@@ -38,7 +38,7 @@ exports.run = (client, message,args) => {
           message.channel.send(
             {embed : {color: 0x4dd52b,
                 description:"Current list of custom commands:\n " + customCommandListString}});
-
+          connection.end();
           return;
         }
 
@@ -57,17 +57,19 @@ exports.run = (client, message,args) => {
                   message.channel.send(
                     {embed : {color: 0xFF0000,
                         description: "Custom command: **" + args[1] + "** was not removed due to bot error. Please try again later."}});
+                  connection.end();
                   return;
                 }
                 message.channel.send(
                   {embed : {color: 0x4dd52b,
                       description: "Custom command: **" + args[1] + "** was removed."}});
-
+                connection.end();
                 return;
 
             });
           }
         }
+          connection.end();
           return;
         }
 
@@ -83,12 +85,14 @@ exports.run = (client, message,args) => {
             message.channel.send(
               {embed : {color: 0xFF0000,
                   description: "Custom command: **" + args[0] + "** was not added due to bot error. Please try again later."}});
-
+            connection.end();
             return;
           }
           message.channel.send(
             {embed : {color: 0x4dd52b,
                 description:"New command: **" + config.prefix + commandInput + "** has been added to the list of custom commands."}});
+          connection.end();
+          return;
 
       });
 
