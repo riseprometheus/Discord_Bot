@@ -29,15 +29,6 @@ const fs = require('fs')
 const googleClient = require('./GoogleAPI/client.js')
 
 
-//Checking for master command list
-try{
-  var masterCommandList = require('./Commands/masterCommandList.json')
-}
-catch(err){
-  logger.info("Did not load master command list. Shutting down.")
-  process.exit()
-}
-
 //Checking for google api module
 try {
   const {google} = require('googleapis');
