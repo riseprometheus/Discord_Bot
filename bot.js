@@ -3,10 +3,6 @@ const client = new Discord.Client();
 
 
 var winston = require('winston');
-var auth = require('./auth.json');
-var config = require('./config.json')
-const fs = require('fs')
-const googleClient = require('./GoogleAPI/client.js')
 
 //info for winson
 const logger = winston.createLogger({
@@ -22,6 +18,15 @@ const logger = winston.createLogger({
     })
   ]
 });
+
+logger.info("Going to load information from auth.json.");
+var auth = loadConfig("auth.json");
+
+logger.info("Going to load information from config.json.");
+var config = loadConfig("config.json");
+
+const fs = require('fs')
+const googleClient = require('./GoogleAPI/client.js')
 
 
 //Checking for master command list
@@ -46,13 +51,6 @@ var mysql      = require('mysql');
 var mysqlConfig = require('./sqlconfig.json')
 
 var botStartUpInfo = {
-  emojiMap:[
-  {key: 0,value:'Moderation'},
-  {key: 1,value:'Games'},
-  {key: 2,value:'Misc'},
-  {key: 3,value:'Hank'},
-  {key: 4,value:'Anime'},
-  {key: 5,value:'Back'}],
   activities: [`on ${client.guilds.size} servers`,
                'ask ?help',
                'Ping Prometheus when I die',
@@ -61,7 +59,6 @@ var botStartUpInfo = {
 
 var currentlyAttemptingLogin = false;
 var loggedIn = false;
-
 
 
 client.on('ready', () => {
@@ -81,9 +78,6 @@ client.on('ready', () => {
 });
 
 client.on('message', message => {
-  if(botHelpResponse(message) == true){//why doesn't if(botHelpResponse(message)) not work?
-    return;
-  };
 
   if(message.author.bot) return;
 
@@ -99,7 +93,7 @@ client.on('message', message => {
 
   //check if dm
   const args = message.content.slice(config.prefix.length).trim().split(/ +/g);
-  const command = args.shift().toLowerCase();
+  const command = args.shift();
   try {
       // let functionFolder = require('./Commands/getFunctionMap.js');
       // var folder = functionFolder.run(command);
@@ -108,16 +102,9 @@ client.on('message', message => {
         return;
       }
 
-      if(checkIfHelp(command,message)){return;};
+      //// TODO: REBUILD HELP COMMAND
+      checkIfHelp(command,message,args);
 
-      if(checkIfCustomCommand(command,message) == true){return;}
-
-      var folder = checkIfActive(command,message);
-
-      //logger.debug("Loaded folder: " + folder)
-      let commandFile = require(`./Commands/${folder}/${command.toLowerCase()}.js`);
-
-      commandFile.run(client, message, args);
     }
     catch (err) {
       if(message.content == config.prefix + "help") return;
@@ -169,32 +156,28 @@ client.on('guildMemberAdd', member => {
 
     connection.connect(function(err) {
       if(err) {
-        console.log('error when connecting to db:', err);
+        logger.debug('error when connecting to db:', err);
       }
     });
 
     var serverID = member.guild.id;
     connection.query({sql:myQuery,
                         timeout: 40000},[serverID], function (error, results, fields) {
-      connection.end(function(err) {
-        if(err) {
-          console.log('error when disconnecting from db:', err);
-        }
-      });
-      console.log(results.size);
+      disconnect(connection);
+
       if (error){
         if(error.code === 'PROTOCOL_ENQUEUE_AFTER_FATAL_ERROR' ){
           message_.reply("Please try you command again.")
           return;
         }
         else{
-        console.log(error);
-        return;
+          logger.debug("Non ENQUEUE error ", error);
+          return;
         }
       }
 
     results.forEach(newMemberRole =>{
-          member.addRole(newMemberRole.role_snowflake).catch().then(console.log(`Added role ${newMemberRole.role_name} to ${member.user.username} on ${newMemberRole.server_name}`))
+          member.addRole(newMemberRole.role_snowflake).catch().then(logger.info(`Added role ${newMemberRole.role_name} to ${member.user.username} on ${newMemberRole.server_name}`))
       });
 
     });
@@ -208,238 +191,113 @@ client.on('guildMemberAdd', member => {
 
 client.login(auth.token);
 
-function checkIfHelp(command,message){
+function checkIfHelp(command,message,args){
+
+  let helpConn = createSQLConnection("config_database");
+  if(!connect(helpConn)) return undefined;
+
   if(command == "help"){
-    sendMainMenu(message)
-    return true;
-  }
-  return false;
-}
-
-function botHelpResponse(message){
-    if(message.author.id !=client.user.id ) return false;
-
-    message.embeds.forEach((embed)=>{
-      if(embed.url != null)
-      {
-        return;
-      }
-
-      if(embed.description == null)
-      {
-        return;
-      }
-
-      try
-      {
-        if(embed.description.indexOf("HELP MENU")>=0)
-        {
-          var filterEmojiArray = ['💼','🎮','❓','🤠','🗡','⬅'];
-
-          message.react(filterEmojiArray[0])
-          .then(()=>message.react(filterEmojiArray[1]))
-          .then(()=>message.react(filterEmojiArray[2]))
-          .then(()=>message.react(filterEmojiArray[3]))
-          .then(()=>message.react(filterEmojiArray[4]))
-
-
-        const filter = (reaction,user)=> {
-          return filterEmojiArray.includes(reaction.emoji.name) && user.id !=client.user.id;
+    if(args.length > 0 ){
+      let specCategoryString = `Here are the commands available in the **${args[0].toUpperCase()}** category: \n`;
+      let categoryCommandsQuery = `SELECT command,help_text FROM bot_commands where module = \'${args[0]}\'`;
+      helpConn.query({sql:categoryCommandsQuery,
+                          timeout: 40000}, function (error, results, fields) {
+        disconnect(helpConn);
+        if(checkForError(error)) return;
+        if(results.length > 0){
+          results.forEach(comm=>{
+            specCategoryString += `**${comm.command}**: *${comm.help_text}*\n`;
+          })
+          sendEmbedTemplate(message,specCategoryString,0x4dd52b);
+        }else{
+            sendEmbedTemplate(message,`It doesn't look like that is a valid help category. Please try again with one of the options from using the ${config.prefix}help command.`,0x4dd52b);
         }
 
+      });
 
-        const collector = message.createReactionCollector(filter, { time: 60000 });
+    }else{
+      let disModuleQuery = 'SELECT distinct module FROM bot_commands';
 
-        collector.on('collect', (reaction, reactionCollector) => {
-            var categoryString = botStartUpInfo.emojiMap[filterEmojiArray.indexOf(reaction.emoji.name)].value
-            if(categoryString == 'Back')
-            {
-              editMainMenu(message)
-            }
-            else
-            {
-              editMenuPerCategory(categoryString,message)
-            }
+      helpConn.query({sql:disModuleQuery,
+                          timeout: 40000}, function (error, results, fields) {
+        disconnect(helpConn);
+        if(checkForError(error)) return;
+        let categoriesString = `Type ${config.prefix}help <CATEGORY> from one of the categories below to see all commands in that category. \n` ;
 
+        results.forEach( category =>{
+          categoriesString +=`**${category.module}**\n`;
         });
-
-        collector.on('end', collected => {
-          message.reply('Signing off. If you need anything else, please send your command again.')
-        });
-
-
-            return true
-          }
-      }
-      catch(err)
-      {
-        //console.log("Was not a bot function")
-        return;
-      }
-      })
-
-      return false;
-  }
-
-function checkIfActive(command,message){
-  for(i in masterCommandList){
-    if(masterCommandList[i].command.toLowerCase() == command)
-    {
-      if(masterCommandList[i].active == false)
-      {
-        message.channel.send("Command is disabled by Admin.");
-        return '';
-      }
-      return masterCommandList[i].subfolder;
+        sendEmbedTemplate(message,categoriesString,0x4dd52b);
+      });
     }
+  }else{
+    checkIfActive(command,message,args);
   }
-  if(message.content == config.prefix + "help")return;
+
+}
+
+
+
+ function checkIfActive(command,message,args){
+  let configSQLConn = createSQLConnection("config_database");
+  if(!connect(configSQLConn)) return undefined;
+
+  let configQuery = `SELECT active, module FROM bot_commands WHERE command = '${command}'`;
+  configSQLConn.query({sql:configQuery,
+                      timeout: 40000}, function (error, results, fields) {
+    disconnect(configSQLConn);
+    if(checkForError(error)) return;
+
+
+    if(results.length >0){
+      if(results[0].active === 1){
+            //Command is active.
+            logger.debug(`Successfully returned active result for ${command} in module ${results[0].module}.`)
+            //logger.debug("Loaded folder: " + folder)
+            let commandFile = require(`./Commands/${results[0].module}/${command.toLowerCase()}.js`);
+            commandFile.run(client, message, args);
+
+        }else{
+          //returned hidden command
+          logger.debug("Returned hidden command.");
+          sendEmbedTemplate(message,`${config.prefix}${command} doesn't seem to be a valid command. Please use ${config.prefix}help to see a valid list of commands.`,0x4dd52b);
+        }
+    }else if(results.length == 0){
+      checkIfCustomCommand(command,message,args)
+    }
+
+
+  });
+}
+
+function checkIfCustomCommand(command,message,args){
+
+      var myQuery = "SELECT * FROM discord_sql_server.server_custom_commands WHERE server_id = ?;";
+      let ccConn = createSQLConnection();
+
+      if(!connect(ccConn)) return;
+
+
+      var serverID = message.guild.id;
+      ccConn.query({sql:myQuery,
+                          timeout: 40000},[serverID], function (error, results, fields) {
+        disconnect(ccConn);
+        if(checkForError(error)) return;
+
+        results.forEach(commandEntry =>{
+
+          if(command == commandEntry.command.toLowerCase()){
+              message.channel.send(commandEntry.embed_link);
+              return true;
+          }
+        });
+
+      });
+
 }
 
 function respondToDM(message){
   message.reply("Thank you for messaging the Bot. The owner will get back to you soon.");
-}
-
-function sendMainMenu(message){
-  message.author.send({embed : {color: 0x4dd52b,
-      description: "**HELP MENU** \n"+
-      "What would you like to know more about? \n" +
-      ":briefcase: Moderation \n"+
-      ":video_game: Games \n" +
-      ":question: Misc \n" +
-      ":cowboy: Hank \n"+
-      ":dagger: Anime"}})
-      return
-}
-
-function editMainMenu(message){
-  message.edit({embed : {color: 0x4dd52b,
-      description: "**HELP MENU** \n"+
-      "What would you like to know more about? \n" +
-      ":briefcase: Moderation \n"+
-      ":video_game: Games \n" +
-      ":question: Misc \n" +
-      ":cowboy: Hank \n"+
-      ":dagger: Anime"}})
-      return
-}
-
-function editMenuPerCategory(commandCategory,message){
-    var helpString = '';
-    var spacer = ' ';
-    for(i in masterCommandList){
-
-      if(masterCommandList[i].active == false ||  masterCommandList[i].hidden == true
-      || masterCommandList[i].subfolder != commandCategory)
-      {continue;}
-
-      helpString += "`"+config.prefix + masterCommandList[i].command +"`" + ": " +
-      masterCommandList[i].help +"\n\n";
-
-    }
-    if(helpString.length>0)
-    {
-      message.edit({embed : {color: 0x4dd52b,
-          description: helpString}})
-          .then(()=>message.react('⬅'))
-
-    }
-    return
-}
-
-async function attemptLogin(client){
-  logger.debug("Starting login Attempts")
-  var loginAttempts = 0;
-  var maxLoginAttempts = 10;
-
-  currentlyAttemptingLogin = true;
-  for(loginAttempts = 1; loginAttempts <=maxLoginAttempts; loginAttempts++)
-
-      try
-      {
-        logger.debug(`Attempting login #${loginAttempts}`)
-        await sleep(30000)
-
-        if(loggedIn)
-        {
-          return;
-        }
-        continue;
-      }
-      catch(err)
-      {
-        if(loginAttempts==maxLoginAttempts)
-        {
-          currentlyAttemptingLogin = false;
-        }
-
-        logger.debug(`Login attempt ${loginAttempts} has failed. Trying again.`)
-        await sleep(10000)
-      }
-
-  if(!loggedIn)
-  {
-    logger.info(`Successive login attempts unsuccessful. Exiting bot @ ${new Date()}`)
-    process.exit()
-  }
-  return;
-}
-
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-function checkIfCustomCommand(command_,message_){
-    try  {
-      var myQuery = "SELECT * FROM discord_sql_server.server_custom_commands WHERE server_id = ?;";
-
-      var connection = mysql.createConnection({
-        host     : mysqlConfig.host,
-        user     : mysqlConfig.user,
-        password : mysqlConfig.password,
-        database : mysqlConfig.database
-      });
-
-      connection.connect(function(err) {
-        if(err) {
-          console.log('error when connecting to db:', err);
-        }
-      });
-
-      var serverID = message_.guild.id;
-      connection.query({sql:myQuery,
-                          timeout: 40000},[serverID], function (error, results, fields) {
-        connection.end(function(err) {
-          if(err) {
-            console.log('error when disconnecting from db:', err);
-          }
-        });
-
-        if (error){
-          if(error.code === 'PROTOCOL_ENQUEUE_AFTER_FATAL_ERROR' ){
-            message_.reply("Please try you command again.")
-            return;
-          }
-          else{
-          console.log(error);
-          return;
-          }
-        }
-
-      results.forEach(commandEntry =>{
-
-        if(command_ == commandEntry.command.toLowerCase()){
-            message_.channel.send(commandEntry.embed_link);
-            return true;
-        }
-        });
-      });
-
-    }
-    catch(err){
-      //logger.debug("Problem loading custom command, error: " + err);
-      return false;
-    }
 }
 
 function botTickerLoop(botInfo){
@@ -458,36 +316,65 @@ function botTickerLoop(botInfo){
   }
 }
 
-function handleDisconnect() {
-  connection = mysql.createConnection({
-    host     : mysqlConfig.host,
-    user     : mysqlConfig.user,
-    password : mysqlConfig.password,
-    database : mysqlConfig.database
-  });
 
-  connection.connect(function(err) {
-    if(err) {
-      console.log('error when connecting to db:', err);
-    }
-  });
-
-  connection.on('error', function(err) {
-      if(err.code === 'PROTOCOL_CONNECTION_LOST') { // Connection to the MySQL server is usually
-        logger.debug(`Connection to DB has been lost at ${new Date()}`)
-                        // lost due to either server restart, or a
-      } else {                                      // connnection idle timeout (the wait_timeout
-        console.log("Couldn't reconnect to mysql server.")                                 // server variable configures this)
+function loadConfig(fileName){
+  try {
+      var mod = require(`./${fileName}`);
+      logger.info(`Sucessfully loaded ${fileName}.`);
+      return mod;
+  } catch (e) {
+      if (e.code !== 'MODULE_NOT_FOUND') {
+          throw e;
       }
-    });
-
+      logger.info(`${fileName} not found. Closing bot.js`);
+  }
 }
 
-function createSQLConnection(){
+function createSQLConnection(db="database"){
   return mysql.createConnection({
     host     : mysqlConfig.host,
     user     : mysqlConfig.user,
     password : mysqlConfig.password,
-    database : mysqlConfig.database
+    database : mysqlConfig[db]
   });
+}
+
+function connect(conn){
+  let result = true;
+  conn.connect(function(err) {
+    if(err) {
+      logger.debug('error when connecting to db', err);
+      result = false;
+    }
+
+  });
+
+  return result;
+}
+
+function disconnect(conn){
+  conn.end(function(err) {
+    if(err) {
+      logger.debug('error when disconnecting from db:', err);
+    }
+  });
+}
+
+function checkForError(err){
+  if (err){
+    if(err.code === 'PROTOCOL_ENQUEUE_AFTER_FATAL_ERROR' ){
+      logger.debug("Enqueue Error");
+      return true;
+    }
+    else{
+      logger.debug("Non ENQUEUE error ", err);
+      return true;
+    }
+  }
+  return false;
+}
+
+function sendEmbedTemplate(message,msgText,color){
+  message.channel.send({embed : {color: 0x4dd52b,
+    description: msgText}}).catch(console.error);
 }

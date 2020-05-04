@@ -1,6 +1,5 @@
 exports.run = (client, message,args) => {
     var rolesString ='';
-    console.log(message.member.roles.size);
     //console.log(message.member.roles);
     message.member.roles.forEach(function(role,roleID){
       if(role.name != '@everyone'){
