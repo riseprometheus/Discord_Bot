@@ -89,7 +89,7 @@ client.on('message', message => {
       // let functionFolder = require('./Commands/getFunctionMap.js');
       // var folder = functionFolder.run(command);
       if(message.content.indexOf('/') != -1 && command != "customcommand" && command !="sendtochannel" && "play"){
-        message.reply("Please don't try to mess around with me too much.");
+        message.reply(getEmbedTemplate("Please don't try to mess around with me too much.","Uh Oh!"));
         return;
       }
 
@@ -158,7 +158,7 @@ client.on('guildMemberAdd', member => {
 
       if (error){
         if(error.code === 'PROTOCOL_ENQUEUE_AFTER_FATAL_ERROR' ){
-          message_.reply("Please try you command again.")
+          message_.reply(getEmbedTemplate("Please try you command again."));
           return;
         }
         else{
@@ -199,9 +199,9 @@ function checkIfHelp(command,message,args){
           results.forEach(comm=>{
             specCategoryString += `**${comm.command}**: *${comm.help_text}*\n`;
           })
-          sendEmbedTemplate(message,specCategoryString,0x4dd52b);
+          message.send(getEmbedTemplate(specCategoryString));
         }else{
-            sendEmbedTemplate(message,`It doesn't look like that is a valid help category. Please try again with one of the options from using the ${config.prefix}help command.`,0x4dd52b);
+            message.send(getEmbedTemplate(`It doesn't look like that is a valid help category. Please try again with one of the options from using the ${config.prefix}help command.`));
         }
 
       });
@@ -218,7 +218,7 @@ function checkIfHelp(command,message,args){
         results.forEach( category =>{
           categoriesString +=`**${category.module}**\n`;
         });
-        sendEmbedTemplate(message,categoriesString,0x4dd52b);
+        message.send(getEmbedTemplate(categoriesString));
       });
     }
   }else{
@@ -251,7 +251,7 @@ function checkIfHelp(command,message,args){
         }else{
           //returned hidden command
           logger.debug("Returned hidden command.");
-          sendEmbedTemplate(message,`${config.prefix}${command} doesn't seem to be a valid command. Please use ${config.prefix}help to see a valid list of commands.`,0x4dd52b);
+          message.send(getEmbedTemplate(`${config.prefix}${command} doesn't seem to be a valid command. Please use ${config.prefix}help to see a valid list of commands.`));
         }
     }else if(results.length == 0){
       checkIfCustomCommand(command,message,args)
@@ -288,7 +288,7 @@ function checkIfCustomCommand(command,message,args){
 }
 
 function respondToDM(message){
-  message.reply("Thank you for messaging the Bot. The owner will get back to you soon.");
+  message.reply(getEmbedTemplate("Thank you for messaging the Bot. The owner will get back to you soon."));
 }
 
 function botTickerLoop(botInfo){
@@ -365,7 +365,31 @@ function checkForError(err){
   return false;
 }
 
-function sendEmbedTemplate(message,msgText,color){
-  message.channel.send({embed : {color: 0x4dd52b,
-    description: msgText}}).catch(console.error);
+function getEmbedTemplate(msgText,titleOpt){
+  var titleString = "";
+  if(titleOpt){
+    titleString = titleOpt;
+  }
+  return {embed : {color: 0x4dd52b,
+                  title:`${titleString}`,
+                  description: msgText,
+                  timestamp: new Date(),
+                  footer: {
+                    icon_url: client.user.avatarURL,
+                    text: "Brought to you by Prometheus"}
+                  }
+          };
+}
+
+function getEmbedListTemplate(titleText,fieldJson){
+  return {embed : {color: 0x4dd52b,
+      title: `${titleText}`,
+      fields: [ fieldJson
+    ],
+    timestamp: new Date(),
+    footer: {
+      icon_url: client.user.avatarURL,
+      text: "Brought to you by Prometheus"
+    }
+  }};
 }
