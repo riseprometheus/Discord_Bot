@@ -1,7 +1,6 @@
 const Discord = require('discord.js');
 const client = new Discord.Client();
 
-
 var winston = require('winston');
 
 //info for winson
@@ -50,7 +49,6 @@ var botStartUpInfo = {
 
 var currentlyAttemptingLogin = false;
 var loggedIn = false;
-
 
 client.on('ready', () => {
   logger.debug('Hello there!');
@@ -365,31 +363,31 @@ function checkForError(err){
   return false;
 }
 
-function getEmbedTemplate(msgText,titleOpt){
-  var titleString = "";
-  if(titleOpt){
-    titleString = titleOpt;
-  }
-  return {embed : {color: 0x4dd52b,
-                  title:`${titleString}`,
-                  description: msgText,
-                  timestamp: new Date(),
-                  footer: {
-                    icon_url: client.user.avatarURL,
-                    text: "Brought to you by Prometheus"}
-                  }
-          };
-}
+// exports.getEmbedTemplate = (msgText,titleOpt) => {
+//   var titleString = "";
+//   if(titleOpt){
+//     titleString = titleOpt;
+//   }
+//   return {embed : {color: 0x4dd52b,
+//                   title:`${titleString}`,
+//                   description: msgText,
+//                   timestamp: new Date(),
+//                   footer: {
+//                     icon_url: client.user.avatarURL,
+//                     text: "Brought to you by Prometheus"}
+//                   }
+//           };
+// };
 
-function getEmbedListTemplate(titleText,fieldJson){
-  return {embed : {color: 0x4dd52b,
-      title: `${titleText}`,
-      fields: [ fieldJson
-    ],
-    timestamp: new Date(),
-    footer: {
-      icon_url: client.user.avatarURL,
-      text: "Brought to you by Prometheus"
-    }
-  }};
-}
+exports.getEmbedTemplate = (message) =>{
+  let embedTemplate = new Discord.MessageEmbed(message).setColor('#0099ff');
+  embedTemplate	.setURL('https://discord.js.org/')
+                .setColor('0x4dd52b')
+              	.setAuthor(client.user.username, client.user.avatarURL, 'Conspirator.dev')
+              	.setTimestamp()
+              	.setFooter('Brought to you by Conspirator.dev', client.user.avatarURL);
+
+ return embedTemplate;
+};
+
+exports.inviteLink = `https://discord.com/oauth2/authorize?client_id=${auth.clientID}&scope=bot`;
