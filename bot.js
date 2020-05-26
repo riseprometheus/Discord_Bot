@@ -87,7 +87,8 @@ client.on('message', message => {
       // let functionFolder = require('./Commands/getFunctionMap.js');
       // var folder = functionFolder.run(command);
       if(message.content.indexOf('/') != -1 && command != "customcommand" && command !="sendtochannel" && "play"){
-        message.reply(getEmbedTemplate("Please don't try to mess around with me too much.","Uh Oh!"));
+        let responseJson = exports.getEmbedTemplate().setDescription("Please don't try to mess around with me too much.").setTitle("Uh Oh!")
+        message.reply(responseJson);
         return;
       }
 
@@ -156,7 +157,7 @@ client.on('guildMemberAdd', member => {
 
       if (error){
         if(error.code === 'PROTOCOL_ENQUEUE_AFTER_FATAL_ERROR' ){
-          message_.reply(getEmbedTemplate("Please try you command again."));
+          message_.reply(exports.getEmbedTemplate().setDescription("Please try you command again.").setTitle("Uh Oh!"));
           return;
         }
         else{
@@ -197,9 +198,9 @@ function checkIfHelp(command,message,args){
           results.forEach(comm=>{
             specCategoryString += `**${comm.command}**: *${comm.help_text}*\n`;
           })
-          message.send(getEmbedTemplate(specCategoryString));
+          message.channel.send(exports.getEmbedTemplate().setDescription(specCategoryString).setTitle(`Help Menu For Category: ${args[0]}`));
         }else{
-            message.send(getEmbedTemplate(`It doesn't look like that is a valid help category. Please try again with one of the options from using the ${config.prefix}help command.`));
+            message.channel.send(exports.getEmbedTemplate().setDescription(`It doesn't look like that is a valid help category. Please try again with one of the options from using the ${config.prefix}help command.`));
         }
 
       });
@@ -216,7 +217,7 @@ function checkIfHelp(command,message,args){
         results.forEach( category =>{
           categoriesString +=`**${category.module}**\n`;
         });
-        message.send(getEmbedTemplate(categoriesString));
+        message.channel.send(exports.getEmbedTemplate().setDescription(categoriesString).setTitle("Help Menu For Bot OverSeer"));
       });
     }
   }else{
@@ -249,7 +250,7 @@ function checkIfHelp(command,message,args){
         }else{
           //returned hidden command
           logger.debug("Returned hidden command.");
-          message.send(getEmbedTemplate(`${config.prefix}${command} doesn't seem to be a valid command. Please use ${config.prefix}help to see a valid list of commands.`));
+          message.send(exports.getEmbedTemplate().setDescription(`${config.prefix}${command} doesn't seem to be a valid command. Please use ${config.prefix}help to see a valid list of commands.`));
         }
     }else if(results.length == 0){
       checkIfCustomCommand(command,message,args)
@@ -286,7 +287,7 @@ function checkIfCustomCommand(command,message,args){
 }
 
 function respondToDM(message){
-  message.reply(getEmbedTemplate("Thank you for messaging the Bot. The owner will get back to you soon."));
+  message.reply(exports.getEmbedTemplate().setDescription("Thank you for messaging the Bot. The owner will get back to you soon."));
 }
 
 function botTickerLoop(botInfo){
@@ -363,29 +364,15 @@ function checkForError(err){
   return false;
 }
 
-// exports.getEmbedTemplate = (msgText,titleOpt) => {
-//   var titleString = "";
-//   if(titleOpt){
-//     titleString = titleOpt;
-//   }
-//   return {embed : {color: 0x4dd52b,
-//                   title:`${titleString}`,
-//                   description: msgText,
-//                   timestamp: new Date(),
-//                   footer: {
-//                     icon_url: client.user.avatarURL,
-//                     text: "Brought to you by Prometheus"}
-//                   }
-//           };
-// };
 
-exports.getEmbedTemplate = (message) =>{
+
+exports.getEmbedTemplate = () =>{
   let embedTemplate = new Discord.MessageEmbed().setColor('#0099ff');
-  embedTemplate	.setURL('https://discord.js.org/')
-                .setColor('0x4dd52b')
-              	.setAuthor(client.user.username, client.user.avatarURL, 'Conspirator.dev')
+
+  embedTemplate	.setColor('0x4dd52b')
+              	.setAuthor(client.user.username, client.user.avatarURL(), 'https://Conspirator.dev')
               	.setTimestamp()
-              	.setFooter('Brought to you by Conspirator.dev', client.user.avatarURL);
+              	.setFooter('Brought to you by Conspirator.dev', client.user.avatarURL());
 
  return embedTemplate;
 };
