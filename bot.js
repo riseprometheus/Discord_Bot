@@ -380,7 +380,7 @@ function checkForError(err){
 // };
 
 exports.getEmbedTemplate = (message) =>{
-  let embedTemplate = new Discord.MessageEmbed(message).setColor('#0099ff');
+  let embedTemplate = new Discord.MessageEmbed().setColor('#0099ff');
   embedTemplate	.setURL('https://discord.js.org/')
                 .setColor('0x4dd52b')
               	.setAuthor(client.user.username, client.user.avatarURL, 'Conspirator.dev')
