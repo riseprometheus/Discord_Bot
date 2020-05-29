@@ -1,3 +1,16 @@
+try {
+    console.log(require.resolve("discord.js"));
+} catch(e) {
+    console.error("Could not find discord.js module");
+    process.exit(e.code);
+}
+
+try {
+    console.log(require.resolve("winston"));
+} catch(e) {
+    console.error("Could not find winston module");
+    process.exit(e.code);
+}
 const Discord = require('discord.js');
 const client = new Discord.Client();
 
