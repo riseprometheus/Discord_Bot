@@ -54,7 +54,7 @@ var mysql      = require('mysql');
 var mysqlConfig = require('./sqlconfig.json')
 
 var botStartUpInfo = {
-  activities: [`on ${client.guilds.size} servers`,
+  activities: [`on ${client.guilds.cache.size} servers`,
                'ask ?help',
                'Ping Prometheus when I die',
                'try out ?showGameRoles']
