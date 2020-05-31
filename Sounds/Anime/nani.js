@@ -5,7 +5,7 @@ exports.run = (client, message,args) => {
     message.reply('You must be in a voice channel to use this command.')
   }
 
-    var voiceChannel = message.member.voiceChannel;
+    var voiceChannel = message.member.voice.channel;
         voiceChannel.join().then(connection => {
             const dispatcher = connection.playFile('Sounds/Anime/nani.mp3');
             dispatcher.on("end", end => {
