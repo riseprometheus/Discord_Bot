@@ -69,7 +69,7 @@ exports.run = (client, message,args) => {
 }
 
 function creatRole(client, message, game, connection){
-  message.guild.createRole({
+  message.guild.roles.create({
   name: game,
   color: 'BLUE',
   mentionable: true
