@@ -3,7 +3,7 @@ exports.run = (client, message,args) => {
   var wasRemoved = false;
   message.member.roles.forEach(function(role,roleID){
     if(role.name.toLowerCase() == game.toLowerCase()){
-      message.member.removeRole(role.id).then(
+      message.member.roles.remove(role.id).then(
         message.channel.send({embed : {color: 0x4dd52b,
             title: `Game Role removed`,
             fields: [{
@@ -37,6 +37,6 @@ exports.run = (client, message,args) => {
       text: "Brought to you by Prometheus"
     }
 
-  }})
+  }}).catch(console.log(error));
 }
 }

@@ -53,6 +53,8 @@ catch (e) {
 var mysql      = require('mysql');
 var mysqlConfig = require('./sqlconfig.json')
 
+var currentlyAttemptingLogin = false;
+var loggedIn = false;
 var botStartUpInfo = {
   activities: [`on ${client.guilds.cache.size} servers`,
                'ask ?help',
@@ -60,22 +62,18 @@ var botStartUpInfo = {
                'try out ?showGameRoles']
 };
 
-var currentlyAttemptingLogin = false;
-var loggedIn = false;
-
 client.on('ready', () => {
   logger.debug('Hello there!');
-  logger.debug(`Connected to ${client.guilds.size} server(s)`);
+  logger.debug(`Connected to ${client.guilds.cache.size} server(s)`);
   var dateStart = new Date();
   logger.info("Starting up at: " + dateStart.getHours() + ":" + dateStart.getMinutes())
   client.user.setActivity('Bot is starting up', { type: 'WATCHING:' });
   var botInfo = {counter: 0};
 
-
   //playing ticker
   var interval1 = setInterval(function(){
     botTickerLoop(botInfo);
-  },15*1000)
+  },10*1000)
 
 });
 
@@ -306,7 +304,7 @@ function respondToDM(message){
 function botTickerLoop(botInfo){
   if(botInfo.counter == 0)
   {
-    botStartUpInfo.activities[botInfo.counter] = `on ${client.guilds.size} servers`;
+    botStartUpInfo.activities[botInfo.counter] = `on ${client.guilds.cache.size} servers`;
   }
   client.user.setActivity(botStartUpInfo.activities[botInfo.counter], { type: 'WATCHING' })
   if(botInfo.counter < botStartUpInfo.activities.length-1)

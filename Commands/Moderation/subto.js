@@ -63,9 +63,9 @@ function addGameRoleToUser(client,message,game, roleExists){
       userName = message.member.user.username;
     }
 
-  message.channel.guild.roles.forEach(function(role,roleID){
+  message.channel.guild.roles.cache.each(function(role,roleID){
     if(role.name.toLowerCase() == game.toLowerCase()){
-      if(message.member.roles.has(role.id)){
+      if(message.member.roles.cache.has(role.id)){
         message.channel.send({embed : {color: 0xFF0000,
             title: `Game Role Not Added`,
             fields: [{
@@ -84,7 +84,7 @@ function addGameRoleToUser(client,message,game, roleExists){
         return;
       }
 
-      message.member.addRole(role.id).then(message.member.addRole(roleID)).then(
+      message.member.roles.add(role.id).then(
           message.channel.send({embed : {color: 0x4dd52b,
               title: `Game Role Added`,
               fields: [{
