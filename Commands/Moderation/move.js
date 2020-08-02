@@ -1,17 +1,20 @@
 exports.run = (client, message,args) => {
-  var channelID = message.member.voiceChannelID;
-  if(channelID === null){
-    message.reply("Please be in a voice channel to move a user.");
-    return;
-  }
 
-  var collectionKey = message.mentions.members.firstKey();
-  console.log(message.mentions.members.get(collectionKey).voiceChannelID)
-  if(typeof message.mentions.members.get(collectionKey).voiceChannelID === 'undefined'){
-    message.reply("Please make sure target user and yourself are in a voice channel.");
+  if(typeof message.member.voice === 'undefined'){
+    message.reply("please be in a voice channel to move a user.");
     return;
   }
-  message.mentions.members.get(collectionKey).setVoiceChannel(channelID);
+  var channelID = message.member.voice.channelID;
+  var collectionKey = message.mentions.members.firstKey();
+  if(typeof collectionKey === 'undefined'){
+    message.reply("please mention the member you would like to move.");
+    return;
+  }
+  if(typeof message.mentions.members.get(collectionKey).voice.channelID === 'undefined'){
+    message.reply("please make sure you and the target user are in a voice channel.");
+    return;
+  }
+  message.mentions.members.get(collectionKey).voice.setChannel(channelID);
 
   return;
 }

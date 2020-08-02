@@ -10,16 +10,16 @@
     "extend": "^3.0.2",
     "ffmpeg-binaries": "^3.2.2",
     "googleapis": "^40.0.1",
-    "mysql": "^2.17.1",
+    "mysql": "^2.18.1",
     "node-gyp": "^4.0.0",
     "opn": "^5.5.0",
     "opus": "0.0.0",
     "opusscript": "0.0.6",
     "rebuild": "^0.1.2",
-    "request": "^2.88.0",
+    "request": "^2.88.2",
     "server-destroy": "^1.0.1",
-    "winston": "^3.2.1",
-    "ws": "^7.2.1",
+    "winston": "^3.3.3",
+    "ws": "^7.3.1",
     "youtube-audio-stream": "^0.2.0"
   }
 }
