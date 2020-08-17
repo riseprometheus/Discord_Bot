@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import psutil
 import subprocess
+import time
 def checkIfProcessRunning(processName):
 
 #Iterate over the all the running process
@@ -16,12 +17,15 @@ def checkIfProcessRunning(processName):
     return False;
 
 # Check if any chrome process was running or not.
-if checkIfProcessRunning('bot.js'):
-    print('Yes a bot process was running') 
-else:
-    print('No bot process was running')
-    try:
-        print("Going to start process.")
-        subprocess.Popen(["node /home/chris/Discord_Bot/bot.js"],shell = True)
-    except:
-        print("Didn't Start process.")
+while(True):
+    if checkIfProcessRunning('bot.js'):
+        print('Yes a bot process was running')
+        time.sleep(60)
+    else:
+        print('No bot process was running')
+        try:
+            print("Going to start process.")
+            subprocess.Popen(["node /home/chris/Discord_Bot/bot.js"],shell = True)
+        except:
+            print("Didn't Start process.")
+
