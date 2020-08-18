@@ -6,6 +6,6 @@ exports.run = (client, message,args) => {
   }
 
   console.log(`${channelID}`);
-  message.guild.voice.channel.setUserLimit(args[0]);
+  message.member.voice.channel.setUserLimit(args[0]);
   return;
 }
