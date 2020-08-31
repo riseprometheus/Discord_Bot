@@ -93,7 +93,7 @@ client.on('message', message => {
 
   //check if dm
   const args = message.content.slice(config.prefix.length).trim().split(/ +/g);
-  const command = args.shift();
+  const command = args.shift().toLowerCase();
   try {
       // let functionFolder = require('./Commands/getFunctionMap.js');
       // var folder = functionFolder.run(command);
