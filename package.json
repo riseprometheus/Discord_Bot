@@ -11,6 +11,7 @@
     "ffmpeg-binaries": "^3.2.2",
     "googleapis": "^40.0.1",
     "mysql": "^2.18.1",
+    "mysql2": "^2.2.5",
     "node-gyp": "^4.0.0",
     "opn": "^5.5.0",
     "opus": "0.0.0",
