@@ -25,7 +25,7 @@ while(True):
         print('No bot process was running')
         try:
             print("Going to start process.")
-            subprocess.Popen(["node ~/Discord_Bot/bot.js"],shell = True)
+            subprocess.Popen(["node bot.js"],shell = True)
             time.sleep(10);
         except:
             print("Didn't Start process.")
