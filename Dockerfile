@@ -1,6 +1,10 @@
 From node:12.20.1
-RUN mkdir ~/Discord_Bot
-copy . ~/Discord_Bot
-WORKDIR ~/Discord_Bot
+RUN apt update
+RUN apt install -y python-pip
+RUN pip install psutil
 
-CMD["python","checkBotStatus.py"]
+
+copy . /app/Discord_Bot
+WORKDIR /app/Discord_Bot
+
+CMD ["python","checkBotStatus.py"]
